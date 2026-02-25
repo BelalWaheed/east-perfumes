@@ -1,0 +1,440 @@
+@import "tailwindcss";
+
+/* ===========================
+   Design Tokens — East Perfumes
+   Luxury Gold & Dark Theme
+=========================== */
+:root {
+  --gold: #c9a84c;
+  --gold-light: #e2c97e;
+  --gold-dark: #9b7d33;
+  --gold-glow: rgba(201, 168, 76, 0.25);
+  --cream: #fdf6e3;
+  --cream-dark: #f5e6c8;
+
+  /* Light mode */
+  --bg: #fdf6e3;
+  --bg-secondary: #f5e6c8;
+  --surface: #ffffff;
+  --surface-raised: #fffdf5;
+  --border: rgba(201, 168, 76, 0.25);
+  --text: #1a1208;
+  --text-muted: #6b5b3a;
+  --text-subtle: #9b8c6a;
+
+  --shadow-gold: 0 4px 24px rgba(201, 168, 76, 0.18);
+  --shadow-card: 0 2px 16px rgba(26, 18, 8, 0.08);
+}
+
+.dark {
+  --bg: #0d0a05;
+  --bg-secondary: #1a1208;
+  --surface: #1e1810;
+  --surface-raised: #261f12;
+  --border: rgba(201, 168, 76, 0.18);
+  --text: #fdf6e3;
+  --text-muted: #c9b98a;
+  --text-subtle: #8b7a55;
+
+  --shadow-gold: 0 4px 32px rgba(201, 168, 76, 0.22);
+  --shadow-card: 0 2px 16px rgba(0, 0, 0, 0.5);
+}
+
+/* ===========================
+   Base
+=========================== */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: "Inter", sans-serif;
+  background-color: var(--bg);
+  color: var(--text);
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
+  min-height: 100vh;
+  line-height: 1.6;
+}
+
+/* ===========================
+   Typography
+=========================== */
+h1,
+h2,
+h3,
+h4,
+h5 {
+  font-family: "Playfair Display", serif;
+  line-height: 1.2;
+}
+
+.gradient-gold {
+  background: linear-gradient(
+    135deg,
+    var(--gold),
+    var(--gold-light),
+    var(--gold-dark)
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ===========================
+   Cards
+=========================== */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: var(--shadow-card);
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
+}
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-gold);
+}
+
+.card-glass {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+}
+
+/* ===========================
+   Buttons
+=========================== */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-family: "Inter", sans-serif;
+  font-weight: 500;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-gold {
+  background: linear-gradient(
+    135deg,
+    var(--gold-dark),
+    var(--gold),
+    var(--gold-light)
+  );
+  color: #0d0a05;
+  padding: 0.625rem 1.5rem;
+  font-weight: 600;
+  box-shadow: 0 2px 12px var(--gold-glow);
+}
+.btn-gold:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 24px var(--gold-glow);
+}
+
+.btn-outline {
+  background: transparent;
+  border: 1.5px solid var(--gold);
+  color: var(--gold);
+  padding: 0.625rem 1.5rem;
+}
+.btn-outline:hover:not(:disabled) {
+  background: var(--gold-glow);
+  transform: translateY(-2px);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--text-muted);
+  padding: 0.5rem 1rem;
+}
+.btn-ghost:hover:not(:disabled) {
+  color: var(--gold);
+  background: var(--gold-glow);
+}
+
+.btn-danger {
+  background: linear-gradient(135deg, #c0392b, #e74c3c);
+  color: white;
+  padding: 0.625rem 1.5rem;
+}
+.btn-danger:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(231, 76, 60, 0.4);
+}
+
+.btn-sm {
+  padding: 0.375rem 0.875rem;
+  font-size: 0.875rem;
+  border-radius: 6px;
+}
+.btn-lg {
+  padding: 0.875rem 2rem;
+  font-size: 1.05rem;
+  border-radius: 10px;
+}
+.btn-full {
+  width: 100%;
+}
+
+/* ===========================
+   Forms
+=========================== */
+.input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  font-family: "Inter", sans-serif;
+  font-size: 0.95rem;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+  outline: none;
+}
+.input:focus {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px var(--gold-glow);
+}
+.input::placeholder {
+  color: var(--text-subtle);
+}
+
+.label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  margin-bottom: 0.375rem;
+}
+
+.form-group {
+  margin-bottom: 1.25rem;
+}
+
+/* ===========================
+   Badge / Tag
+=========================== */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2rem 0.65rem;
+  border-radius: 99px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+.badge-gold {
+  background: var(--gold-glow);
+  color: var(--gold);
+  border: 1px solid var(--gold);
+}
+.badge-green {
+  background: rgba(39, 174, 96, 0.15);
+  color: #27ae60;
+  border: 1px solid rgba(39, 174, 96, 0.3);
+}
+.badge-red {
+  background: rgba(231, 76, 60, 0.15);
+  color: #e74c3c;
+  border: 1px solid rgba(231, 76, 60, 0.3);
+}
+
+/* ===========================
+   Dividers
+=========================== */
+.divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border), transparent);
+  margin: 1.5rem 0;
+}
+
+/* ===========================
+   Section
+=========================== */
+.section {
+  padding: 5rem 1rem;
+}
+.section-sm {
+  padding: 3rem 1rem;
+}
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+/* ===========================
+   Animations
+=========================== */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+@keyframes shimmer {
+  0% {
+    background-position: -200% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
+}
+@keyframes pulse-gold {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 var(--gold-glow);
+  }
+  50% {
+    box-shadow: 0 0 0 12px transparent;
+  }
+}
+@keyframes spin-slow {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.5s ease both;
+}
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+.animate-shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--gold-dark),
+    var(--gold-light),
+    var(--gold-dark)
+  );
+  background-size: 200% auto;
+  animation: shimmer 3s linear infinite;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.animate-pulse-gold {
+  animation: pulse-gold 2s ease infinite;
+}
+.animate-spin-slow {
+  animation: spin-slow 8s linear infinite;
+}
+
+/* ===========================
+   Price Display
+=========================== */
+.price-original {
+  text-decoration: line-through;
+  color: var(--text-subtle);
+  font-size: 0.875rem;
+}
+.price-final {
+  color: var(--gold);
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+.discount-badge {
+  background: linear-gradient(135deg, #e74c3c, #c0392b);
+  color: white;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
+}
+
+/* ===========================
+   Nav
+=========================== */
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  backdrop-filter: blur(12px);
+}
+
+/* ===========================
+   Scrollbar
+=========================== */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--gold-dark);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--gold);
+}
+
+/* ===========================
+   Utility Overrides
+=========================== */
+.text-gold {
+  color: var(--gold);
+}
+.text-muted {
+  color: var(--text-muted);
+}
+.text-subtle {
+  color: var(--text-subtle);
+}
+.bg-surface {
+  background: var(--surface);
+}
+.bg-raised {
+  background: var(--surface-raised);
+}
+.border-gold {
+  border-color: var(--border);
+}
+.rounded-xl {
+  border-radius: 12px;
+}
+.rounded-2xl {
+  border-radius: 16px;
+}
+.rounded-3xl {
+  border-radius: 24px;
+}
