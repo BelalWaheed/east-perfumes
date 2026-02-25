@@ -1,196 +1,212 @@
-import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
+import { FaArrowRight, FaStar, FaTruck, FaShieldAlt, FaHeadset } from 'react-icons/fa';
 import { useSelector } from 'react-redux';
-import { useSEO } from '@/hooks/useSEO';
 import ProductCard from '@/components/ProductCard';
-import { FaArrowRight, FaStar, FaShieldAlt, FaTruck, FaGem } from 'react-icons/fa';
+import { useTranslation } from '@/hooks/useTranslation';
 
 export default function Home() {
-  useSEO({
-    title: 'Luxury Fragrances',
-    description: 'Discover authentic luxury perfumes from the East. Premium oud, musk, and Arabic fragrances.',
-    keywords: 'east perfumes, luxury fragrances, oud, arabic perfume, authentic',
-  });
-
   const { products } = useSelector((s) => s.products);
-  const featured   = useMemo(() => products.slice(0, 4), [products]);
-  const categories = useMemo(() => [...new Set(products.map((p) => p.category))].slice(0, 4), [products]);
+  const { t, isRTL } = useTranslation();
+
+  const featuredProducts = products.slice(0, 4);
+  const categories = [...new Set(products.map((p) => p.category))].slice(0, 4);
 
   const features = [
-    { icon: FaStar,       title: 'Premium Quality',    desc: 'Handpicked authentic fragrances' },
-    { icon: FaShieldAlt,  title: 'NFC Verified',       desc: 'Every bottle is authenticated' },
-    { icon: FaTruck,      title: 'Fast Delivery',      desc: 'Swift delivery across Egypt' },
-    { icon: FaGem,        title: 'Loyalty Rewards',    desc: '1 EGP = 1 point on every purchase' },
+    { icon: FaTruck, title: t('home.freeShipping'), desc: t('home.freeShippingDesc') },
+    { icon: FaShieldAlt, title: t('home.securePayment'), desc: t('home.securePaymentDesc') },
+    { icon: FaHeadset, title: t('home.support247'), desc: t('home.support247Desc') },
+    { icon: FaStar, title: t('home.premiumQuality'), desc: t('home.premiumQualityDesc') },
   ];
 
   return (
-    <div style={{ overflow: 'hidden' }}>
-      {/* ── Hero ── */}
-      <section
-        style={{
-          minHeight: 'calc(100vh - 68px)',
-          display: 'flex', alignItems: 'center',
-          position: 'relative', overflow: 'hidden',
-        }}
-      >
-        {/* Glow blobs */}
-        <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}>
-          <div style={{ position: 'absolute', top: '-10%', left: '-10%', width: '50%', height: '50%', background: 'radial-gradient(circle, var(--gold-glow), transparent 70%)', borderRadius: '50%' }} />
-          <div style={{ position: 'absolute', bottom: '-10%', right: '-10%', width: '45%', height: '45%', background: 'radial-gradient(circle, rgba(201,168,76,0.12), transparent 70%)', borderRadius: '50%' }} />
+    <div className="overflow-hidden">
+      {/* Hero Section */}
+      <section className="relative min-h-[calc(100vh-100px)] flex items-center">
+        {/* Animated Background */}
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute top-0 -left-1/4 w-1/2 h-1/2 bg-primary/20 rounded-full blur-3xl animate-pulse" />
+          <div className="absolute bottom-0 -right-1/4 w-1/2 h-1/2 bg-accent/20 rounded-full blur-3xl animate-pulse delay-1000" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-secondary/30 rounded-full blur-3xl" />
         </div>
 
-        <div className="container" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4rem', alignItems: 'center', padding: '4rem 1rem', position: 'relative' }}>
-          {/* Text */}
-          <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-            <div className="badge badge-gold" style={{ alignSelf: 'flex-start', padding: '0.4rem 1rem' }}>
-              🌹 New Collection Available
+        <div className="relative max-w-7xl mx-auto px-4 py-20 grid lg:grid-cols-2 gap-12 items-center">
+          {/* Text Content */}
+          <div className={`space-y-6 ${isRTL ? 'lg:order-2' : ''}`}>
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium">
+              <FaStar className="text-yellow-500" />
+              <span>{t('home.newCollection')}</span>
             </div>
 
-            <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: 'clamp(2.5rem, 5vw, 4rem)', lineHeight: 1.1 }}>
-              <span className="gradient-gold">Discover</span>
+            <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold leading-tight">
+              <span className="gradient-text">{t('home.discover')}</span>
               <br />
-              <span style={{ color: 'var(--text)' }}>The Scent of</span>
-              <br />
-              <span style={{ color: 'var(--text)' }}>the <em>East</em></span>
+              <span className="text-foreground">{t('home.latestFashion')}</span>
             </h1>
 
-            <p style={{ fontSize: '1.05rem', color: 'var(--text-muted)', lineHeight: 1.7, maxWidth: 420 }}>
-              Authentic luxury fragrances crafted from the finest oud, musk, and rose — each bottle a testament to Eastern heritage and craftsmanship.
+            <p className="text-lg text-muted-foreground max-w-md">
+              {t('home.heroDescription')}
             </p>
 
-            <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-              <Link to="/products" className="btn btn-gold btn-lg">
-                Shop Now <FaArrowRight />
-              </Link>
-              <Link to="/products" className="btn btn-outline btn-lg">
-                View Collection
+            <div className="flex flex-wrap gap-4 pt-4">
+              <Link to="/products">
+                <button className="btn-premium px-8 py-4 text-white text-lg group flex items-center gap-2">
+                  {t('common.shop')}
+                  <FaArrowRight className={`group-hover:translate-x-1 transition-transform ${isRTL ? 'rotate-180' : ''}`} />
+                </button>
               </Link>
             </div>
 
             {/* Stats */}
-            <div style={{ display: 'flex', gap: '2.5rem', paddingTop: '1rem' }}>
-              {[
-                { val: `${products.length}+`, label: 'Fragrances' },
-                { val: '10K+', label: 'Happy Customers' },
-                { val: '100%', label: 'Authentic' },
-              ].map(({ val, label }) => (
-                <div key={label}>
-                  <div style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.75rem', fontWeight: 700 }} className="gradient-gold">{val}</div>
-                  <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>{label}</div>
-                </div>
-              ))}
+            <div className="flex flex-wrap gap-12 pt-8">
+              <div>
+                <p className="text-3xl font-bold gradient-text">{products.length}+</p>
+                <p className="text-sm text-muted-foreground">{t('common.products')}</p>
+              </div>
+              <div>
+                <p className="text-3xl font-bold gradient-text">10K+</p>
+                <p className="text-sm text-muted-foreground">{t('home.happyCustomers')}</p>
+              </div>
+              <div>
+                <p className="text-3xl font-bold gradient-text">24/7</p>
+                <p className="text-sm text-muted-foreground">{t('home.support')}</p>
+              </div>
             </div>
           </div>
 
-          {/* Hero visual */}
-          <div style={{ position: 'relative', display: 'flex', justifyContent: 'center' }}>
-            <div
-              className="animate-float"
-              style={{
-                width: 380, height: 380, borderRadius: '50%',
-                border: '1px solid var(--border)',
-                background: 'var(--surface-raised)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                position: 'relative', overflow: 'hidden',
-              }}
-            >
-              <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(circle, var(--gold-glow), transparent 70%)' }} />
-              {featured[0] && (
-                <img src={featured[0].image} alt={featured[0].name} style={{ maxWidth: '65%', maxHeight: '65%', objectFit: 'contain', position: 'relative' }} />
+          {/* Hero Image/Products */}
+          <div className={`relative ${isRTL ? 'lg:order-1' : ''}`}>
+            <div className="relative w-full aspect-square max-w-lg mx-auto">
+              <div className="absolute inset-0 gradient-primary rounded-full opacity-20 blur-3xl animate-pulse" />
+              <div className="relative w-full h-full rounded-full bg-linear-to-br from-primary/5 to-accent/5 border border-primary/10 flex items-center justify-center overflow-hidden">
+                {featuredProducts[0] && (
+                  <img
+                    src={featuredProducts[0].image}
+                    alt="Featured Product"
+                    className="w-3/4 h-3/4 object-contain animate-float"
+                  />
+                )}
+              </div>
+
+              {/* Floating product cards */}
+              {featuredProducts[1] && (
+                <div className="absolute -top-4 -right-4 w-24 h-24 card-premium p-2 animate-float shadow-lg">
+                  <img src={featuredProducts[1].image} alt="" className="w-full h-full object-contain" />
+                </div>
+              )}
+              {featuredProducts[2] && (
+                <div className="absolute -bottom-4 -left-4 w-28 h-28 card-premium p-2 animate-float shadow-lg delay-500">
+                  <img src={featuredProducts[2].image} alt="" className="w-full h-full object-contain" />
+                </div>
               )}
             </div>
-            {/* Small floating pills */}
-            {featured[1] && (
-              <div className="card animate-float" style={{ position: 'absolute', top: 20, right: 0, width: 90, height: 90, padding: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', animationDelay: '0.5s' }}>
-                <img src={featured[1].image} alt="" style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />
-              </div>
-            )}
-            {featured[2] && (
-              <div className="card animate-float" style={{ position: 'absolute', bottom: 30, left: 0, width: 80, height: 80, padding: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', animationDelay: '1s' }}>
-                <img src={featured[2].image} alt="" style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />
-              </div>
-            )}
           </div>
         </div>
       </section>
 
-      {/* ── Features ── */}
-      <section style={{ padding: '4rem 1rem', borderTop: '1px solid var(--border)', borderBottom: '1px solid var(--border)' }}>
-        <div className="container" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '2rem' }}>
-          {features.map(({ icon: Icon, title, desc }) => (
-            <div key={title} style={{ textAlign: 'center' }}>
-              <div style={{
-                width: 56, height: 56, borderRadius: 16,
-                background: 'var(--gold-glow)', border: '1px solid var(--border)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                margin: '0 auto 1rem',
-              }}>
-                <Icon style={{ color: 'var(--gold)', fontSize: '1.25rem' }} />
+      {/* Features */}
+      <section className="py-16 border-y border-border">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+            {features.map((item, i) => (
+              <div key={i} className="text-center group">
+                <div className="w-14 h-14 mx-auto rounded-2xl bg-primary/10 text-primary flex items-center justify-center mb-4 group-hover:bg-primary group-hover:text-white transition-all duration-300">
+                  <item.icon className="text-xl" />
+                </div>
+                <h3 className="font-semibold text-foreground mb-1">{item.title}</h3>
+                <p className="text-sm text-muted-foreground">{item.desc}</p>
               </div>
-              <h3 style={{ fontWeight: 600, fontSize: '0.95rem', marginBottom: '0.35rem', color: 'var(--text)' }}>{title}</h3>
-              <p style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>{desc}</p>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </section>
 
-      {/* ── Featured Products ── */}
-      <section className="section">
-        <div className="container">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '2.5rem', flexWrap: 'wrap', gap: '1rem' }}>
+      {/* Featured Products */}
+      <section className="py-20">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="flex flex-wrap items-center justify-between gap-4 mb-10">
             <div>
-              <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 'clamp(1.75rem, 3vw, 2.5rem)', marginBottom: '0.4rem' }}>
-                <span className="gradient-gold">Featured</span> Collection
+              <h2 className="text-3xl md:text-4xl font-bold mb-2">
+                <span className="gradient-text">{t('home.featuredProducts')}</span>
               </h2>
-              <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>Our most sought-after fragrances</p>
+              <p className="text-muted-foreground">{t('home.featuredDesc')}</p>
             </div>
-            <Link to="/products" className="btn btn-outline">View All <FaArrowRight style={{ marginLeft: 6 }} /></Link>
+            <Link to="/products">
+              <button className="border border-border rounded-full px-6 py-2.5 text-sm font-medium text-foreground hover:bg-primary hover:text-primary-foreground transition-all duration-200 group flex items-center gap-2">
+                {t('common.viewAll')}
+                <FaArrowRight className={`group-hover:translate-x-1 transition-transform ${isRTL ? 'rotate-180' : ''}`} />
+              </button>
+            </Link>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: '1.5rem' }}>
-            {featured.map((p) => <ProductCard key={p.id} product={p} />)}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {featuredProducts.map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
           </div>
         </div>
       </section>
 
-      {/* ── Categories ── */}
-      {categories.length > 0 && (
-        <section className="section" style={{ paddingTop: 0, background: 'var(--surface-raised)' }}>
-          <div className="container">
-            <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 'clamp(1.75rem, 3vw, 2.5rem)', textAlign: 'center', marginBottom: '2.5rem' }}>
-              Shop by <span className="gradient-gold">Category</span>
+      {/* Categories */}
+      <section className="py-24 relative overflow-hidden">
+        <div className="absolute top-0 left-0 w-full h-full bg-linear-to-b from-transparent to-secondary/20 pointer-events-none" />
+        <div className="absolute -left-20 top-40 w-72 h-72 bg-primary/5 rounded-full blur-3xl" />
+        <div className="absolute -right-20 bottom-20 w-80 h-80 bg-accent/5 rounded-full blur-3xl" />
+
+        <div className="max-w-7xl mx-auto px-4 relative z-10">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-5xl font-bold mb-4">
+              <span className="gradient-text">{t('home.shopByCategory')}</span>
             </h2>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '1.25rem' }}>
-              {categories.map((cat) => {
-                const catProds = products.filter((p) => p.category === cat);
-                return (
-                  <Link
-                    key={cat}
-                    to={`/products?category=${encodeURIComponent(cat)}`}
-                    className="card"
-                    style={{
-                      textDecoration: 'none', overflow: 'hidden',
-                      display: 'flex', flexDirection: 'column',
-                    }}
-                  >
-                    <div style={{ height: 160, background: 'var(--surface)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
-                      {catProds[0] && (
-                        <img src={catProds[0].image} alt={cat} style={{ maxHeight: 130, objectFit: 'contain' }} />
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              {t('home.categoryDesc')}
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {categories.map((category) => {
+              const categoryProducts = products.filter((p) => p.category === category);
+              const displayImage = categoryProducts[0]?.image;
+
+              return (
+                <Link
+                  key={category}
+                  to={`/products?category=${encodeURIComponent(category)}`}
+                  className="group relative"
+                >
+                  <div className="h-80 rounded-3xl overflow-hidden card-premium transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl border-none relative group">
+                    <div className="absolute inset-0 bg-linear-to-t from-background via-background/20 to-transparent opacity-60 z-10 group-hover:opacity-40 transition-opacity duration-500" />
+                    <div className="w-full h-full p-8 flex items-center justify-center bg-white dark:bg-white/5">
+                      {displayImage && (
+                        <img
+                          src={displayImage}
+                          alt={category}
+                          className="w-full h-full object-contain mix-blend-multiply dark:mix-blend-normal transition-transform duration-700 group-hover:scale-110"
+                        />
                       )}
                     </div>
-                    <div style={{ padding: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <div>
-                        <div style={{ fontWeight: 600, fontSize: '0.95rem', color: 'var(--text)', textTransform: 'capitalize' }}>{cat}</div>
-                        <div style={{ fontSize: '0.75rem', color: 'var(--text-subtle)' }}>{catProds.length} items</div>
+                    <div className="absolute bottom-0 left-0 w-full p-6 z-20">
+                      <div className="flex items-end justify-between">
+                        <div>
+                          <h3 className="text-xl font-bold text-foreground capitalize mb-2 group-hover:text-primary transition-colors">
+                            {t(`categories.${category}`, category)}
+                          </h3>
+                          <p className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                            <span className="bg-primary/10 text-primary px-2 py-0.5 rounded-full text-xs">
+                              {categoryProducts.length} {t('common.items')}
+                            </span>
+                          </p>
+                        </div>
+                        <div className="w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center transform translate-x-4 opacity-0 group-hover:translate-x-0 group-hover:opacity-100 transition-all duration-300 shadow-lg">
+                          <FaArrowRight className={isRTL ? 'rotate-180' : ''} />
+                        </div>
                       </div>
-                      <FaArrowRight style={{ color: 'var(--gold)' }} />
                     </div>
-                  </Link>
-                );
-              })}
-            </div>
+                  </div>
+                </Link>
+              );
+            })}
           </div>
-        </section>
-      )}
+        </div>
+      </section>
     </div>
   );
 }

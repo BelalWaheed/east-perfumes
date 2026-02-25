@@ -1,135 +1,165 @@
-import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
-import { setAudioUrl, setIsPlaying } from '@/redux/slices/audioSlice';
-import { productApi, userApi } from '@/lib/api';
-import { useSEO } from '@/hooks/useSEO';
-import Loader from '@/components/Loader';
-import { FaCheckCircle, FaTimesCircle, FaMusic } from 'react-icons/fa';
+import { useState, useEffect } from 'react';
+import { useParams, Link } from 'react-router-dom';
+import { useSelector, useDispatch } from 'react-redux';
+import { HiShieldCheck, HiExclamationCircle, HiGift } from 'react-icons/hi';
+import { useTranslation } from '@/hooks/useTranslation';
+import { generateNfcCode } from '@/lib/utils';
+import { purchaseProduct } from '@/redux/slices/profileSlice';
+import { updateProduct } from '@/redux/slices/productSlice';
+import { setPlaylist } from '@/redux/slices/audioSlice';
+import AudioPlayer from '@/components/AudioPlayer';
 
 export default function NfcVerify() {
-  const { nfcCode }  = useParams();
-  const dispatch     = useDispatch();
+  const { nfcCode: paramCode } = useParams();
+  const dispatch = useDispatch();
+  const { products } = useSelector((s) => s.products);
+  const { loggedUser, logged } = useSelector((s) => s.profile);
+  const { t } = useTranslation();
+  const [code, setCode] = useState(paramCode || '');
+  const [result, setResult] = useState(null);
+  const [loading, setLoading] = useState(false);
 
-  const [status, setStatus]   = useState('loading'); // 'loading' | 'valid' | 'invalid'
-  const [product, setProduct] = useState(null);
-  const [audioLoaded, setAudioLoaded] = useState(false);
-
-  useSEO({
-    title: status === 'valid' ? `Verified: ${product?.name}` : 'NFC Verification',
-    description: 'East Perfumes NFC product authenticity verification',
-  });
-
+  // Auto-verify if code came from URL
   useEffect(() => {
-    let cancelled = false;
+    if (paramCode) verify(paramCode);
+  }, [paramCode]);
 
-    async function verify() {
-      try {
-        const [products, users] = await Promise.all([productApi.getAll(), userApi.getAll()]);
-
-        if (cancelled) return;
-
-        const found = products.find((p) => p.nfcCode === nfcCode);
-        if (!found) { setStatus('invalid'); return; }
-
-        setProduct(found);
-        setStatus('valid');
-
-        // Set admin audio
-        const admin = users.find((u) => u.role === 'admin');
-        if (admin?.audioURL) {
-          dispatch(setAudioUrl(admin.audioURL));
-          dispatch(setIsPlaying(true));
-          setAudioLoaded(true);
+  const verify = (c) => {
+    setLoading(true);
+    // Simulate a small delay for UX
+    setTimeout(() => {
+      const found = products.find((p) => p.nfcCode === c);
+      if (found) {
+        setResult({ authentic: true, product: found });
+        // Award points if logged in and code not already used (rolling system rotates code, so if it's found, it's valid)
+        if (logged && loggedUser) {
+          dispatch(
+            purchaseProduct({
+              user: loggedUser,
+              product: found,
+              finalPrice: found.price,
+              pointsUsed: 0,
+              fixedPoints: 50,
+            })
+          );
+          // Rotate NFC to a new random one
+          const newNfc = generateNfcCode();
+          dispatch(updateProduct({ id: found.id, data: { ...found, nfcCode: newNfc } }));
         }
-      } catch {
-        setStatus('invalid');
+
+        // Play product audio if available, else a default ambient track
+        const track = found.audioURL || 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3';
+        dispatch(setPlaylist(track));
+      } else {
+        setResult({ authentic: false });
       }
-    }
-
-    verify();
-    return () => { cancelled = true; };
-  }, [nfcCode, dispatch]);
-
-  if (status === 'loading') return <Loader />;
+      setLoading(false);
+    }, 800);
+  };
 
   return (
-    <div style={{
-      minHeight: 'calc(100vh - 68px)',
-      display: 'flex', alignItems: 'center', justifyContent: 'center',
-      padding: '2rem 1rem',
-      position: 'relative',
-      overflow: 'hidden',
-    }}>
-      {/* Background glow */}
-      <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}>
-        <div style={{
-          position: 'absolute', top: '20%', left: '50%', transform: 'translateX(-50%)',
-          width: 500, height: 500, borderRadius: '50%',
-          background: status === 'valid'
-            ? 'radial-gradient(circle, rgba(39,174,96,0.12), transparent 70%)'
-            : 'radial-gradient(circle, rgba(231,76,60,0.1), transparent 70%)',
-        }} />
+    <div className="max-w-xl mx-auto px-4 pt-2 pb-8">
+      <div className="text-center mb-12">
+        <div className="w-20 h-20 mx-auto rounded-2xl gradient-primary flex items-center justify-center mb-6">
+          <HiShieldCheck className="text-4xl text-white" />
+        </div>
+        <h1 className="text-3xl md:text-4xl font-bold mb-4">
+          <span className="gradient-text">{t('nfc.title')}</span>
+        </h1>
       </div>
 
-      <div className="card animate-fade-in" style={{ maxWidth: 460, width: '100%', padding: '2.5rem', textAlign: 'center', position: 'relative' }}>
-        {status === 'valid' ? (
-          <>
-            {/* Valid */}
-            <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>
-              <FaCheckCircle style={{ color: '#27ae60' }} />
-            </div>
-            <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.75rem', color: '#27ae60', marginBottom: '0.5rem' }}>
-              Authentic Product
-            </h1>
-            <p style={{ color: 'var(--text-muted)', marginBottom: '1.5rem', fontSize: '0.9rem' }}>
-              This product has been verified as genuine by East Perfumes.
+      {/* Instructions or Result */}
+      {!result ? (
+        <div className="card-premium p-8 glass text-center border-l-4 border-l-primary">
+          <div className="w-16 h-16 mx-auto rounded-full bg-primary/10 flex items-center justify-center mb-4">
+            <HiShieldCheck className="text-3xl text-primary" />
+          </div>
+          <h2 className="text-xl font-bold mb-4">{t('verify.howItWorks')}</h2>
+          <div className="text-start max-w-sm mx-auto">
+            <ol className="text-sm text-muted-foreground space-y-4 list-decimal ps-4">
+              <li>{t('verify.step1')}</li>
+              <li>{t('verify.step2')}</li>
+              <li>
+                <span className="font-semibold text-foreground">Scan the tag:</span> 
+                {" "}Use your phone to scan the NFC tag or QR code on the packaging.
+              </li>
+              <li>{t('verify.step3')}</li>
+            </ol>
+          </div>
+          
+          <div className="mt-8 pt-6 border-t border-border">
+            <p className="text-xs text-muted-foreground uppercase tracking-widest font-bold mb-2">Exclusive Access</p>
+            <p className="text-sm text-foreground/70">
+              Verification is only available via the physical security tag on your East Perfumes bottle.
             </p>
+          </div>
+        </div>
+      ) : (
+        <div className={`card-premium p-8 text-center animate-in fade-in-0 slide-in-from-bottom-4 duration-300 ${
+          result.authentic
+            ? 'border-green-500/30'
+            : 'border-destructive/30'
+        } border-2`}>
+          {result.authentic ? (
+            <>
+              <div className="w-16 h-16 mx-auto rounded-full flex items-center justify-center mb-4 bg-green-500/10">
+                <HiShieldCheck className="text-3xl text-green-500" />
+              </div>
+              <h2 className="text-xl font-bold mb-2 text-green-500">
+                {t('nfc.productAuthentic')}
+              </h2>
+              <p className="text-muted-foreground mb-6">
+                {t('nfc.authenticDesc')}
+              </p>
 
-            {/* Product card */}
-            {product && (
-              <div style={{
-                background: 'var(--surface-raised)',
-                border: '1px solid var(--border)',
-                borderRadius: 12,
-                padding: '1.25rem',
-                marginBottom: '1.5rem',
-                display: 'flex', alignItems: 'center', gap: '1rem',
-              }}>
-                <img src={product.image} alt={product.name} style={{ width: 72, height: 72, objectFit: 'contain', flexShrink: 0 }} />
-                <div style={{ textAlign: 'left' }}>
-                  <div style={{ fontFamily: "'Playfair Display', serif", fontWeight: 600, fontSize: '1rem', marginBottom: '0.2rem' }}>{product.name}</div>
-                  <div style={{ fontSize: '0.78rem', color: 'var(--text-subtle)', textTransform: 'capitalize', marginBottom: '0.3rem' }}>{product.category}</div>
-                  <div className="badge badge-gold">NFC: {product.nfcCode}</div>
+              {/* Points Redemption Info */}
+              <div className="mb-6 animate-in zoom-in-95 duration-500">
+                {logged ? (
+                  <div className="p-4 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center gap-3">
+                    <HiGift className="text-2xl text-primary" />
+                    <div>
+                      <p className="text-sm font-bold text-foreground">{t('verify.success')}</p>
+                      <p className="text-xs text-muted-foreground">{t('verify.successDesc')}</p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="p-4 rounded-xl bg-secondary/50 border border-border text-center">
+                    <p className="text-sm text-muted-foreground mb-2">
+                      {t('common.earnPointsGuest').replace('{points}', 50)}
+                    </p>
+                    <Link to="/login" className="text-xs text-primary font-semibold hover:underline">
+                      {t('common.login')} / {t('common.signUp')}
+                    </Link>
+                  </div>
+                )}
+              </div>
+
+              {result.product && (
+                <div className="flex items-center gap-4 p-4 rounded-xl bg-green-500/5">
+                  <img
+                    src={result.product.image}
+                    alt={result.product.name}
+                    className="w-20 h-20 rounded-lg object-contain bg-white"
+                  />
+                  <div className="text-start">
+                    <p className="font-semibold text-foreground">{result.product.name}</p>
+                    <p className="text-sm text-muted-foreground capitalize">{result.product.category}</p>
+                  </div>
                 </div>
+              )}
+            </>
+          ) : (
+            <>
+              <div className="w-16 h-16 mx-auto rounded-full bg-destructive/10 flex items-center justify-center mb-4">
+                <HiExclamationCircle className="text-3xl text-destructive" />
               </div>
-            )}
-
-            {audioLoaded && (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', justifyContent: 'center', color: 'var(--gold)', fontSize: '0.85rem' }}>
-                <FaMusic /> Playing brand audio…
-              </div>
-            )}
-          </>
-        ) : (
-          <>
-            {/* Invalid */}
-            <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>
-              <FaTimesCircle style={{ color: '#e74c3c' }} />
-            </div>
-            <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.75rem', color: '#e74c3c', marginBottom: '0.5rem' }}>
-              Invalid Product Code
-            </h1>
-            <p style={{ color: 'var(--text-muted)', marginBottom: '1.5rem', fontSize: '0.9rem' }}>
-              The NFC code <strong>"{nfcCode}"</strong> does not match any product in our database.
-              This product may not be authentic.
-            </p>
-            <a href="/products" className="btn btn-outline">
-              Browse Verified Products
-            </a>
-          </>
-        )}
-      </div>
+              <h2 className="text-xl font-bold text-destructive mb-2">{t('nfc.productNotFound')}</h2>
+              <p className="text-muted-foreground">{t('nfc.invalidDesc')}</p>
+            </>
+          )}
+        </div>
+      )}
+      {result?.authentic && <AudioPlayer />}
     </div>
   );
 }

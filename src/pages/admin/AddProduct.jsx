@@ -2,90 +2,122 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { createProduct } from '@/redux/slices/productSlice';
-import { useSEO } from '@/hooks/useSEO';
-import { FaArrowLeft } from 'react-icons/fa';
+import { useTranslation } from '@/hooks/useTranslation';
 import Swal from 'sweetalert2';
 
-const EMPTY = { name: '', description: '', price: '', discount: '0', image: '', category: '', nfcCode: '' };
-
 export default function AddProduct() {
-  useSEO({ title: 'Add Product' });
-  const dispatch  = useDispatch();
-  const navigate  = useNavigate();
-  const [form, setForm]       = useState(EMPTY);
-  const [loading, setLoading] = useState(false);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { t } = useTranslation();
+  const [saving, setSaving] = useState(false);
 
-  const handle = (e) => setForm((p) => ({ ...p, [e.target.name]: e.target.value }));
+  const [form, setForm] = useState({
+    name: '',
+    description: '',
+    price: '',
+    discount: '',
+    category: '',
+    gender: '',
+    image: '',
+    nfcCode: '',
+  });
 
-  const submit = async (e) => {
+  const handleChange = (e) => setForm((p) => ({ ...p, [e.target.name]: e.target.value }));
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!form.name || !form.price || !form.image) {
-      Swal.fire('Missing fields', 'Name, price, and image are required.', 'warning'); return;
-    }
-    const payload = {
-      name: form.name.trim(),
-      description: form.description.trim(),
-      price: Number(form.price),
-      discount: Number(form.discount) || 0,
-      image: form.image.trim(),
-      category: form.category.trim().toLowerCase(),
-      nfcCode: form.nfcCode.trim(),
-    };
-    setLoading(true);
+    if (!form.name.trim()) return Swal.fire({ icon: 'error', text: t('admin.titleRequired') });
+    if (!form.price || Number(form.price) <= 0) return Swal.fire({ icon: 'error', text: t('admin.priceRequired') });
+    if (!form.category.trim()) return Swal.fire({ icon: 'error', text: t('admin.categoryRequired') });
+    if (!form.image.trim()) return Swal.fire({ icon: 'error', text: t('admin.imageRequired') });
+
+    setSaving(true);
     try {
-      await dispatch(createProduct(payload)).unwrap();
-      Swal.fire({ title: 'Product Added!', icon: 'success', timer: 1500, showConfirmButton: false });
+      const data = {
+        ...form,
+        price: Number(form.price),
+        discount: Number(form.discount) || 0,
+      };
+      await dispatch(createProduct(data)).unwrap();
+      Swal.fire({ icon: 'success', text: t('admin.productAdded'), timer: 1500, showConfirmButton: false });
       navigate('/admin/products');
     } catch {
-      Swal.fire('Error', 'Could not add product.', 'error');
-    } finally {
-      setLoading(false);
+      Swal.fire({ icon: 'error', text: t('admin.error') });
     }
+    setSaving(false);
   };
 
-  const fields = [
-    { label: 'Product Name *', name: 'name', type: 'text', placeholder: 'e.g. Rose Oud 50ml' },
-    { label: 'Image URL *', name: 'image', type: 'url', placeholder: 'https://…' },
-    { label: 'Category *', name: 'category', type: 'text', placeholder: 'e.g. oud, musk, rose' },
-    { label: 'Price (EGP) *', name: 'price', type: 'number', placeholder: '0.00' },
-    { label: 'Discount (%)', name: 'discount', type: 'number', placeholder: '0' },
-    { label: 'NFC Code', name: 'nfcCode', type: 'text', placeholder: 'Unique NFC identifier' },
-  ];
-
   return (
-    <div className="section" style={{ paddingTop: '2rem' }}>
-      <div className="container" style={{ maxWidth: 700 }}>
-        <button className="btn btn-ghost btn-sm" onClick={() => navigate(-1)} style={{ marginBottom: '1.5rem', display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}>
-          <FaArrowLeft size={12} /> Back
-        </button>
-        <div className="card" style={{ padding: '2rem' }}>
-          <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.5rem', marginBottom: '1.5rem' }}>
-            Add <span className="gradient-gold">Product</span>
-          </h1>
-          <form onSubmit={submit} noValidate>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1rem' }}>
-              {fields.map(({ label, name, type, placeholder }) => (
-                <div className="form-group" key={name} style={{ margin: 0 }}>
-                  <label className="label">{label}</label>
-                  <input id={`add-${name}`} name={name} type={type} className="input" placeholder={placeholder} value={form[name]} onChange={handle} min={type === 'number' ? 0 : undefined} />
-                </div>
-              ))}
-            </div>
-            <div className="form-group" style={{ marginTop: '1rem' }}>
-              <label className="label">Description</label>
-              <textarea id="add-description" name="description" className="input" rows={4} placeholder="Product description…" value={form.description} onChange={handle} style={{ resize: 'vertical' }} />
-            </div>
-            {form.image && (
-              <div style={{ marginBottom: '1rem', textAlign: 'center' }}>
-                <img src={form.image} alt="preview" style={{ maxHeight: 120, objectFit: 'contain', border: '1px solid var(--border)', borderRadius: 8, padding: 8 }} onError={(e) => (e.target.style.display = 'none')} />
-              </div>
-            )}
-            <button id="add-product-btn" type="submit" className="btn btn-gold btn-full btn-lg" disabled={loading}>
-              {loading ? 'Adding…' : '+ Add Product'}
-            </button>
-          </form>
+    <div className="max-w-3xl mx-auto px-4 py-12">
+      <h1 className="text-3xl font-bold mb-8">
+        <span className="gradient-text">{t('admin.addProduct')}</span>
+      </h1>
+
+      <form onSubmit={handleSubmit} className="card-premium p-8 space-y-6">
+        <div className="grid md:grid-cols-2 gap-6">
+          <div>
+            <label className="text-sm font-medium text-foreground mb-2 block">{t('admin.productName')} *</label>
+            <input name="name" value={form.name} onChange={handleChange}
+              className="w-full px-4 py-3 rounded-xl bg-secondary border border-border text-foreground focus:ring-2 focus:ring-primary/50 focus:outline-none" />
+          </div>
+          <div>
+            <label className="text-sm font-medium text-foreground mb-2 block">{t('filters.category')} *</label>
+            <input name="category" value={form.category} onChange={handleChange}
+              className="w-full px-4 py-3 rounded-xl bg-secondary border border-border text-foreground focus:ring-2 focus:ring-primary/50 focus:outline-none" />
+          </div>
+          <div>
+            <label className="text-sm font-medium text-foreground mb-2 block">{t('admin.gender')}</label>
+            <select name="gender" value={form.gender} onChange={handleChange}
+              className="w-full px-4 py-3 rounded-xl bg-secondary border border-border text-foreground focus:ring-2 focus:ring-primary/50 focus:outline-none">
+              <option value="">{t('admin.selectGenderPlaceholder')}</option>
+              <option value="men">{t('filters.gender.men')}</option>
+              <option value="women">{t('filters.gender.women')}</option>
+              <option value="kids">{t('filters.gender.kids')}</option>
+            </select>
+          </div>
         </div>
-      </div>
+
+        <div>
+          <label className="text-sm font-medium text-foreground mb-2 block">{t('admin.description')}</label>
+          <textarea name="description" value={form.description} onChange={handleChange} rows={3}
+            className="w-full px-4 py-3 rounded-xl bg-secondary border border-border text-foreground focus:ring-2 focus:ring-primary/50 focus:outline-none resize-none" />
+        </div>
+
+        <div className="grid md:grid-cols-2 gap-6">
+          <div>
+            <label className="text-sm font-medium text-foreground mb-2 block">{t('admin.price')} (EGP) *</label>
+            <input name="price" type="number" min="0" step="0.01" value={form.price} onChange={handleChange}
+              className="w-full px-4 py-3 rounded-xl bg-secondary border border-border text-foreground focus:ring-2 focus:ring-primary/50 focus:outline-none" />
+          </div>
+          <div>
+            <label className="text-sm font-medium text-foreground mb-2 block">{t('admin.discount')} (%)</label>
+            <input name="discount" type="number" min="0" max="100" value={form.discount} onChange={handleChange}
+              className="w-full px-4 py-3 rounded-xl bg-secondary border border-border text-foreground focus:ring-2 focus:ring-primary/50 focus:outline-none" />
+          </div>
+        </div>
+
+        <div>
+          <label className="text-sm font-medium text-foreground mb-2 block">{t('admin.imageURL')} *</label>
+          <input name="image" value={form.image} onChange={handleChange}
+            className="w-full px-4 py-3 rounded-xl bg-secondary border border-border text-foreground focus:ring-2 focus:ring-primary/50 focus:outline-none" />
+        </div>
+
+        <div>
+          <label className="text-sm font-medium text-foreground mb-2 block">{t('admin.nfcCode')}</label>
+          <input name="nfcCode" value={form.nfcCode} onChange={handleChange}
+            className="w-full px-4 py-3 rounded-xl bg-secondary border border-border text-foreground focus:ring-2 focus:ring-primary/50 focus:outline-none font-mono" />
+        </div>
+
+        <div className="flex gap-4 pt-4">
+          <button type="submit" disabled={saving} className="btn-premium px-8 py-3 text-white font-semibold">
+            {saving ? t('common.loading') : t('admin.addProduct')}
+          </button>
+          <button type="button" onClick={() => navigate('/admin/products')}
+            className="px-8 py-3 rounded-xl border border-border text-foreground hover:bg-secondary transition-all font-medium">
+            {t('profile.cancel')}
+          </button>
+        </div>
+      </form>
     </div>
   );
 }

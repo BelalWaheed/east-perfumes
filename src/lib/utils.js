@@ -39,7 +39,7 @@ export const generateWhatsAppLink = (product, finalPrice, pointsUsed = 0) => {
     `━━━━━━━━━━━━━━━━━━━`,
     `📦 *Product:* ${product.name}`,
     `🏷️ *Category:* ${product.category}`,
-    `💰 *Price:* ${finalPrice.toFixed(2)} EGP`,
+    `💰 *Price:* ${finalPrice?.toFixed(2)} EGP`,
     pointsUsed > 0
       ? `🎁 *Points Redeemed:* ${pointsUsed} pts (−${pointsToEgp(pointsUsed).toFixed(2)} EGP)`
       : null,
@@ -58,8 +58,21 @@ export const generateWhatsAppLink = (product, finalPrice, pointsUsed = 0) => {
 export const formatEGP = (amount) =>
   `${Number(amount).toFixed(2)} EGP`;
 
+/** Alias for formatEGP */
+export const formatCurrency = formatEGP;
+
 /**
  * Truncate a string to a max length.
  */
 export const truncate = (str, max = 80) =>
   str && str.length > max ? str.slice(0, max) + '…' : str;
+
+/**
+ * Generate a random NFC code in the format NFC-XXXX-XXXX
+ */
+export const generateNfcCode = () => {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // No O, 0, I, 1 for readability
+  const part1 = Array.from({ length: 4 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
+  const part2 = Array.from({ length: 4 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
+  return `NFC-${part1}-${part2}`;
+};

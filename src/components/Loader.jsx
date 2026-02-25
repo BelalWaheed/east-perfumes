@@ -1,29 +1,12 @@
-export default function Loader() {
+export default function Loader({ message = 'Loading...' }) {
   return (
-    <div
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        minHeight: '60vh',
-        gap: '1.5rem',
-      }}
-    >
-      {/* Spinning ring */}
-      <div
-        style={{
-          width: 64,
-          height: 64,
-          borderRadius: '50%',
-          border: '3px solid var(--border)',
-          borderTopColor: 'var(--gold)',
-          animation: 'spin-slow 1s linear infinite',
-        }}
-      />
-      <p style={{ color: 'var(--text-muted)', fontFamily: "'Playfair Display', serif", fontSize: '1rem', letterSpacing: '0.1em' }}>
-        East Perfumes
-      </p>
+    <div className="flex items-center justify-center min-h-[calc(100vh-120px)]">
+      <div className="flex flex-col items-center space-y-6">
+        <div className="w-16 h-16 border-4 border-primary border-dashed rounded-full animate-spin"></div>
+        <p className="text-xl font-semibold animate-pulse text-foreground">
+          {message}
+        </p>
+      </div>
     </div>
   );
 }

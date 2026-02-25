@@ -1,109 +1,113 @@
 import { Link } from 'react-router-dom';
-import { calcFinalPrice, generateWhatsAppLink } from '@/lib/utils';
-import { FaWhatsapp, FaTag } from 'react-icons/fa';
+import { useDispatch, useSelector } from 'react-redux';
+import { FaEye, FaCheck } from 'react-icons/fa6';
+import { FaCartPlus } from 'react-icons/fa';
+import { useTranslation } from '@/hooks/useTranslation';
+import { formatCurrency, calcFinalPrice } from '@/lib/utils';
+import { addToCart } from '@/redux/slices/cartSlice';
+import { useState } from 'react';
 
 export default function ProductCard({ product }) {
-  const { id, name, price, discount, image, category } = product;
-  const finalPrice = calcFinalPrice(price, discount);
-  const hasDiscount = discount > 0;
-  const waLink = generateWhatsAppLink(product, finalPrice);
+  const { t } = useTranslation();
+  const dispatch = useDispatch();
+  const cartItems = useSelector((s) => s.cart.items);
+  const [justAdded, setJustAdded] = useState(false);
+
+  const finalPrice = calcFinalPrice(product.price, product.discount);
+  const hasDiscount = product.discount > 0;
+  const inCart = cartItems.some((i) => String(i.id) === String(product.id));
+
+  const handleAddToCart = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    dispatch(addToCart(product));
+    setJustAdded(true);
+    setTimeout(() => setJustAdded(false), 1500);
+  };
 
   return (
-    <article
-      className="card animate-fade-in"
-      style={{ overflow: 'hidden', display: 'flex', flexDirection: 'column' }}
-    >
-      {/* Image */}
-      <Link to={`/products/${id}`} style={{ display: 'block', position: 'relative', overflow: 'hidden' }}>
-        <div
-          style={{
-            height: 220,
-            background: 'var(--surface-raised)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            padding: '1rem',
-            position: 'relative',
-          }}
-        >
+    <Link to={`/products/${product.id}`} className="group block relative">
+      <div className="card-premium h-full flex flex-col overflow-hidden hover-lift">
+        {/* Image Container */}
+        <div className="relative aspect-square bg-linear-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 overflow-hidden">
           <img
-            src={image}
-            alt={name}
+            src={product.image}
+            alt={product.name}
             loading="lazy"
-            decoding="async"
-            style={{
-              maxHeight: 190, maxWidth: '100%',
-              objectFit: 'contain',
-              transition: 'transform 0.4s ease',
+            className="w-full h-full object-contain p-6 transition-transform duration-500 group-hover:scale-110"
+            onError={(e) => {
+              e.currentTarget.src = 'https://via.placeholder.com/300x300?text=No+Image';
             }}
-            onMouseEnter={(e) => (e.currentTarget.style.transform = 'scale(1.06)')}
-            onMouseLeave={(e) => (e.currentTarget.style.transform = 'scale(1)')}
           />
-          {hasDiscount && (
-            <span
-              className="discount-badge"
-              style={{ position: 'absolute', top: 12, right: 12 }}
+
+          {/* Overlay Actions - Desktop */}
+          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 hidden md:flex items-center justify-center gap-3">
+            <div className="w-12 h-12 rounded-full bg-white dark:bg-gray-800 text-primary flex items-center justify-center transform translate-y-4 group-hover:translate-y-0 transition-all duration-300 shadow-lg">
+              <FaEye className="text-lg" />
+            </div>
+            <button
+              onClick={handleAddToCart}
+              className={`w-12 h-12 rounded-full flex items-center justify-center transform translate-y-4 group-hover:translate-y-0 transition-all duration-300 delay-75 shadow-lg ${
+                justAdded
+                  ? 'bg-green-500 text-white'
+                  : inCart
+                    ? 'bg-green-500/80 text-white hover:bg-green-600'
+                    : 'bg-primary text-white hover:bg-primary/90'
+              }`}
             >
-              -{discount}%
+              {justAdded ? (
+                <FaCheck className="text-lg animate-in zoom-in-50 duration-200" />
+              ) : (
+                <FaCartPlus className="text-lg" />
+              )}
+            </button>
+          </div>
+
+          {/* Mobile Add to Cart */}
+          <button
+            onClick={handleAddToCart}
+            className={`absolute bottom-2 inset-e-2 md:hidden w-9 h-9 rounded-full flex items-center justify-center shadow-lg z-10 transition-all ${
+              justAdded
+                ? 'bg-green-500 text-white'
+                : 'bg-primary text-white'
+            }`}
+          >
+            {justAdded ? <FaCheck className="text-sm" /> : <FaCartPlus className="text-sm" />}
+          </button>
+
+          {/* Category Badge */}
+          <span className="absolute top-3 inset-s-3 px-3 py-1 text-xs font-medium rounded-full bg-primary/90 text-primary-foreground capitalize backdrop-blur-sm">
+            {t(`categories.${product.category}`, product.category)}
+          </span>
+
+          {/* Discount Badge */}
+          {hasDiscount && (
+            <span className="absolute top-2 inset-e-2 px-4 py-2 text-2xl font-black rounded-2xl bg-destructive text-white shadow-[0_0_20px_rgba(239,68,68,0.5)] animate-pulse ring-4 ring-white/20 z-10">
+              -{product.discount}%
             </span>
           )}
         </div>
-      </Link>
 
-      {/* Info */}
-      <div style={{ padding: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem', flex: 1 }}>
-        {/* Category */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-          <FaTag style={{ color: 'var(--gold)', fontSize: '0.65rem' }} />
-          <span style={{ fontSize: '0.72rem', color: 'var(--text-subtle)', textTransform: 'capitalize', letterSpacing: '0.05em' }}>
-            {category}
-          </span>
+        {/* Content */}
+        <div className="flex-1 p-4 flex flex-col">
+          {/* Title */}
+          <h3 className="font-semibold text-foreground line-clamp-1 md:line-clamp-2 mb-2 group-hover:text-primary transition-colors text-sm md:text-base">
+            {t(`productData.${product.name.toLowerCase().replace(/\s+/g, '-')}.name`, product.name)}
+          </h3>
+
+          {/* Price */}
+          <div className="flex items-center justify-center gap-2 mt-auto pt-3 border-t border-border">
+            <span className="text-xl md:text-2xl font-bold gradient-text">
+              {formatCurrency(finalPrice)}
+            </span>
+            {hasDiscount && (
+              <span className="text-sm text-muted-foreground line-through">
+                {formatCurrency(product.price)}
+              </span>
+            )}
+          </div>
         </div>
-
-        {/* Name */}
-        <Link
-          to={`/products/${id}`}
-          style={{
-            textDecoration: 'none',
-            fontFamily: "'Playfair Display', serif",
-            fontWeight: 600,
-            fontSize: '1rem',
-            color: 'var(--text)',
-            lineHeight: 1.3,
-          }}
-        >
-          {name}
-        </Link>
-
-        {/* Price */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: 'auto' }}>
-          {hasDiscount && (
-            <span className="price-original">{Number(price).toFixed(2)} EGP</span>
-          )}
-          <span className="price-final">{finalPrice.toFixed(2)} EGP</span>
-        </div>
-
-        {/* WhatsApp Button */}
-        <a
-          id={`wa-order-${id}`}
-          href={waLink}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="btn btn-full"
-          style={{
-            marginTop: '0.75rem',
-            background: 'linear-gradient(135deg, #128c7e, #25d366)',
-            color: 'white',
-            padding: '0.6rem',
-            borderRadius: 8,
-            justifyContent: 'center',
-            gap: '0.5rem',
-            textDecoration: 'none',
-            fontWeight: 600,
-            fontSize: '0.875rem',
-          }}
-        >
-          <FaWhatsapp size={16} /> Order via WhatsApp
-        </a>
       </div>
-    </article>
+    </Link>
   );
 }

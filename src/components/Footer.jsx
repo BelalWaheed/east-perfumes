@@ -1,80 +1,131 @@
 import { Link } from 'react-router-dom';
-import { FaInstagram, FaWhatsapp, FaEnvelope } from 'react-icons/fa';
+import { FaFacebookF, FaInstagram, FaWhatsapp } from 'react-icons/fa';
+import { useTranslation } from '@/hooks/useTranslation';
 
 export default function Footer() {
-  const year = new Date().getFullYear();
+  const currentYear = new Date().getFullYear();
+  const { t } = useTranslation();
+
   return (
-    <footer
-      role="contentinfo"
-      style={{
-        background: 'var(--surface)',
-        borderTop: '1px solid var(--border)',
-        padding: '3rem 1rem 1.5rem',
-        marginTop: 'auto',
-      }}
-    >
-      <div className="container">
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '2rem', marginBottom: '2.5rem' }}>
-          {/* Brand */}
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
-              <span style={{ fontSize: '1.5rem' }}>🕌</span>
-              <span style={{
-                fontFamily: "'Playfair Display', serif", fontWeight: 700, fontSize: '1.1rem',
-                background: 'linear-gradient(135deg, var(--gold-dark), var(--gold-light))',
-                WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
-              }}>
-                East Perfumes
-              </span>
-            </div>
-            <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', lineHeight: 1.7, maxWidth: 220 }}>
-              Authentic luxury fragrances from the East. Every bottle tells a story of heritage and elegance.
-            </p>
-          </div>
+    <footer className="relative overflow-hidden">
+      {/* Background decoration */}
+      <div className="absolute top-0 left-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl" />
+      <div className="absolute bottom-0 right-0 w-96 h-96 bg-accent/5 rounded-full blur-3xl" />
 
-          {/* Quick Links */}
-          <div>
-            <h3 style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--gold)', marginBottom: '0.75rem', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
-              Quick Links
-            </h3>
-            {[['/', 'Home'], ['/products', 'Products'], ['/login', 'Sign In']].map(([to, label]) => (
-              <Link
-                key={to} to={to}
-                style={{ display: 'block', fontSize: '0.875rem', color: 'var(--text-muted)', textDecoration: 'none', marginBottom: '0.4rem', transition: 'color 0.2s' }}
-                onMouseEnter={(e) => e.target.style.color = 'var(--gold)'}
-                onMouseLeave={(e) => e.target.style.color = 'var(--text-muted)'}
-              >
-                {label}
+      <div className="relative bg-card/50 backdrop-blur-sm border-t border-border">
+        <div className="mx-auto max-w-7xl px-4 py-16">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
+            {/* Brand Section */}
+            <div className="space-y-6">
+              <Link to="/">
+                <span className="font-bold text-xl text-foreground">{t('common.brandName')}</span>
               </Link>
-            ))}
+              <p className="text-muted-foreground text-sm leading-relaxed">
+                {t('footer.brandDescription')}
+              </p>
+              <div className="flex gap-3">
+                {[
+                  { icon: FaWhatsapp, href: `https://wa.me/${import.meta.env.VITE_WHATSAPP_PHONE || ''}` },
+                  { icon: FaInstagram, href: '#' },
+                  { icon: FaFacebookF, href: '#' },
+                ].map((social, i) => (
+                  <a
+                    key={i}
+                    href={social.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-10 h-10 rounded-xl bg-secondary hover:gradient-primary text-foreground hover:text-white flex items-center justify-center transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
+                  >
+                    <social.icon className="h-4 w-4" />
+                  </a>
+                ))}
+              </div>
+            </div>
+
+            {/* Quick Links */}
+            <div className="space-y-6">
+              <h3 className="text-lg font-semibold text-foreground">
+                {t('footer.quickLinks')}
+              </h3>
+              <ul className="space-y-3">
+                {[
+                  { to: '/', label: t('common.home') },
+                  { to: '/products', label: t('common.shop') },
+                  { to: '/profile', label: t('common.profile') },
+                ].map((link, i) => (
+                  <li key={i}>
+                    <Link
+                      to={link.to}
+                      className="text-muted-foreground hover:text-primary transition-colors animated-underline inline-block"
+                    >
+                      {link.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Customer Service */}
+            <div className="space-y-6">
+              <h3 className="text-lg font-semibold text-foreground">
+                {t('footer.customerService')}
+              </h3>
+              <ul className="space-y-3">
+                {[
+                  { label: t('footer.faq'), to: '/customer-service#faq' },
+                  { label: t('footer.shippingReturns'), to: '/customer-service#shipping' },
+                  { label: t('footer.terms'), to: '/customer-service#terms' },
+                  { label: t('footer.privacy'), to: '/customer-service#privacy' },
+                ].map((link, i) => (
+                  <li key={i}>
+                    <Link
+                      to={link.to}
+                      className="text-muted-foreground hover:text-primary transition-colors animated-underline inline-block"
+                    >
+                      {link.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* NFC Verify */}
+            <div className="space-y-6">
+              <h3 className="text-lg font-semibold text-foreground">
+                {t('common.verifyProduct')}
+              </h3>
+              <p className="text-muted-foreground text-sm leading-relaxed">
+                {t('nfc.title')}
+              </p>
+              <Link
+                to="/verify"
+                className="inline-block btn-premium px-6 py-2.5 text-white text-sm"
+              >
+                {t('nfc.verify')}
+              </Link>
+            </div>
           </div>
 
-          {/* Contact */}
-          <div>
-            <h3 style={{ fontSize: '0.875rem', fontWeight: 600, color: 'var(--gold)', marginBottom: '0.75rem', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
-              Contact
-            </h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-              <a href={`https://wa.me/${import.meta.env.VITE_WHATSAPP_PHONE}`} target="_blank" rel="noopener noreferrer"
-                style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#25d366', fontSize: '0.875rem', textDecoration: 'none' }}>
-                <FaWhatsapp /> WhatsApp
-              </a>
-              <a href="mailto:info@eastperfumes.com"
-                style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--text-muted)', fontSize: '0.875rem', textDecoration: 'none' }}>
-                <FaEnvelope /> info@eastperfumes.com
-              </a>
-              <a href="https://instagram.com" target="_blank" rel="noopener noreferrer"
-                style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#e1306c', fontSize: '0.875rem', textDecoration: 'none' }}>
-                <FaInstagram /> @eastperfumes
-              </a>
+          {/* Bottom Bar */}
+          <div className="mt-16 pt-8 border-t border-border">
+            <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+              <p className="text-sm text-muted-foreground">
+                © {currentYear} {t('common.brandName')}. {t('footer.rights')}.
+              </p>
+              <div className="flex gap-6 text-sm text-muted-foreground">
+                {[
+                  { label: t('footer.bottomTerms'), href: '/customer-service#terms' },
+                  { label: t('footer.bottomPrivacy'), href: '/customer-service#privacy' },
+                  { label: t('footer.cookies'), href: '#' },
+                ].map((link, i) => (
+                  <Link key={i} to={link.href} className="hover:text-primary transition-colors">
+                    {link.label}
+                  </Link>
+                ))}
+              </div>
             </div>
           </div>
         </div>
-
-        <div className="divider" />
-        <p style={{ textAlign: 'center', fontSize: '0.8rem', color: 'var(--text-subtle)' }}>
-          © {year} East Perfumes. All rights reserved. | Crafted with elegance 🌹
-        </p>
       </div>
     </footer>
   );

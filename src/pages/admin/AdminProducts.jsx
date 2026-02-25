@@ -1,92 +1,116 @@
-import { useSelector, useDispatch } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { useSEO } from '@/hooks/useSEO';
+import { useSelector, useDispatch } from 'react-redux';
+import { HiPlusCircle, HiPencil, HiTrash, HiEye } from 'react-icons/hi';
 import { deleteProduct } from '@/redux/slices/productSlice';
-import { calcFinalPrice } from '@/lib/utils';
-import { FaEdit, FaTrash, FaEye, FaPlus } from 'react-icons/fa';
+import { useTranslation } from '@/hooks/useTranslation';
+import { formatCurrency, calcFinalPrice } from '@/lib/utils';
+import Loader from '@/components/Loader';
 import Swal from 'sweetalert2';
 
 export default function AdminProducts() {
-  useSEO({ title: 'Manage Products' });
-  const dispatch     = useDispatch();
-  const { products } = useSelector((s) => s.products);
+  const { products, loading } = useSelector((s) => s.products);
+  const dispatch = useDispatch();
+  const { t } = useTranslation();
 
-  const handleDelete = async (id, name) => {
-    const res = await Swal.fire({
-      title: `Delete "${name}"?`,
-      text: 'This cannot be undone.',
+  const handleDelete = (product) => {
+    Swal.fire({
+      title: t('admin.deleteConfirm'),
+      text: product.name,
       icon: 'warning',
       showCancelButton: true,
-      confirmButtonText: 'Delete',
-      confirmButtonColor: '#e74c3c',
+      confirmButtonColor: '#ef4444',
+      confirmButtonText: t('common.delete'),
+      cancelButtonText: t('profile.cancel'),
+    }).then((res) => {
+      if (res.isConfirmed) {
+        dispatch(deleteProduct(product.id));
+      }
     });
-    if (!res.isConfirmed) return;
-    try {
-      await dispatch(deleteProduct(id)).unwrap();
-      Swal.fire({ title: 'Deleted!', icon: 'success', timer: 1200, showConfirmButton: false });
-    } catch {
-      Swal.fire('Error', 'Could not delete product.', 'error');
-    }
   };
 
-  return (
-    <div className="section" style={{ paddingTop: '2rem' }}>
-      <div className="container">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
-          <div>
-            <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.75rem' }}>Products <span className="gradient-gold">({products.length})</span></h1>
-          </div>
-          <Link to="/admin/products/add" className="btn btn-gold" style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-            <FaPlus size={12} /> Add Product
-          </Link>
-        </div>
+  if (loading) return <Loader message={t('common.loading')} />;
 
-        <div className="card" style={{ overflow: 'hidden' }}>
-          <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.875rem' }}>
-              <thead>
-                <tr style={{ background: 'var(--surface-raised)', borderBottom: '1px solid var(--border)' }}>
-                  {['Image', 'Name', 'Category', 'Price', 'Discount', 'Final Price', 'NFC Code', 'Actions'].map((h) => (
-                    <th key={h} style={{ padding: '0.875rem 1rem', textAlign: 'left', color: 'var(--text-muted)', fontWeight: 600, whiteSpace: 'nowrap' }}>{h}</th>
-                  ))}
+  return (
+    <div className="max-w-7xl mx-auto px-4 py-12">
+      <div className="flex flex-wrap items-center justify-between gap-4 mb-8">
+        <h1 className="text-3xl font-bold">
+          <span className="gradient-text">{t('common.products')}</span>
+          <span className="text-sm font-normal text-muted-foreground ms-3">({products.length})</span>
+        </h1>
+        <Link to="/admin/products/add" className="btn-premium px-6 py-3 text-white flex items-center gap-2">
+          <HiPlusCircle className="text-xl" />
+          {t('admin.addProduct')}
+        </Link>
+      </div>
+
+      {/* Products Table */}
+      <div className="card-premium overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead>
+              <tr className="border-b border-border bg-secondary/30">
+                <th className="text-start px-6 py-4 text-sm font-semibold text-foreground">{t('admin.image')}</th>
+                <th className="text-start px-6 py-4 text-sm font-semibold text-foreground">{t('admin.productName')}</th>
+                <th className="text-start px-6 py-4 text-sm font-semibold text-foreground">{t('filters.category')}</th>
+                <th className="text-start px-6 py-4 text-sm font-semibold text-foreground">{t('admin.price')}</th>
+                <th className="text-start px-6 py-4 text-sm font-semibold text-foreground">{t('admin.discount')}</th>
+                <th className="text-start px-6 py-4 text-sm font-semibold text-foreground">{t('common.nfcCode')}</th>
+                <th className="text-center px-6 py-4 text-sm font-semibold text-foreground">{t('admin.actions')}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {products.map((product) => (
+                <tr key={product.id} className="border-b border-border last:border-b-0 hover:bg-secondary/20 transition-colors">
+                  <td className="px-6 py-4">
+                    <img
+                      src={product.image}
+                      alt={product.name}
+                      className="w-12 h-12 rounded-lg object-contain bg-gray-100 dark:bg-gray-800"
+                    />
+                  </td>
+                  <td className="px-6 py-4 text-sm font-medium text-foreground max-w-[200px] truncate">
+                    {product.name}
+                  </td>
+                  <td className="px-6 py-4">
+                    <span className="text-xs font-medium px-3 py-1 rounded-full bg-primary/10 text-primary capitalize">
+                      {product.category}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 text-sm font-semibold text-foreground">
+                    {formatCurrency(calcFinalPrice(product.price, product.discount))}
+                  </td>
+                  <td className="px-6 py-4 text-sm text-foreground">
+                    {product.discount > 0 ? `${product.discount}%` : '—'}
+                  </td>
+                  <td className="px-6 py-4 text-sm font-mono text-muted-foreground">
+                    {product.nfcCode || '—'}
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="flex items-center justify-center gap-2">
+                      <Link
+                        to={`/admin/products/view/${product.id}`}
+                        className="p-2 rounded-lg hover:bg-secondary text-muted-foreground hover:text-primary transition-colors"
+                      >
+                        <HiEye className="text-lg" />
+                      </Link>
+                      <Link
+                        to={`/admin/products/edit/${product.id}`}
+                        className="p-2 rounded-lg hover:bg-secondary text-muted-foreground hover:text-blue-500 transition-colors"
+                      >
+                        <HiPencil className="text-lg" />
+                      </Link>
+                      <button
+                        onClick={() => handleDelete(product)}
+                        className="p-2 rounded-lg hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors"
+                      >
+                        <HiTrash className="text-lg" />
+                      </button>
+                    </div>
+                  </td>
                 </tr>
-              </thead>
-              <tbody>
-                {products.map((p, i) => {
-                  const final = calcFinalPrice(p.price, p.discount);
-                  return (
-                    <tr key={p.id} style={{ borderBottom: '1px solid var(--border)', background: i % 2 === 0 ? 'transparent' : 'var(--surface-raised)' }}>
-                      <td style={{ padding: '0.75rem 1rem' }}>
-                        <img src={p.image} alt={p.name} style={{ width: 44, height: 44, objectFit: 'contain' }} />
-                      </td>
-                      <td style={{ padding: '0.75rem 1rem', fontWeight: 500, color: 'var(--text)' }}>{p.name}</td>
-                      <td style={{ padding: '0.75rem 1rem', textTransform: 'capitalize', color: 'var(--text-muted)' }}>{p.category}</td>
-                      <td style={{ padding: '0.75rem 1rem', color: 'var(--text-muted)' }}>{Number(p.price).toFixed(2)}</td>
-                      <td style={{ padding: '0.75rem 1rem' }}>
-                        {p.discount > 0 ? <span className="discount-badge">{p.discount}%</span> : <span style={{ color: 'var(--text-subtle)', fontSize: '0.8rem' }}>—</span>}
-                      </td>
-                      <td style={{ padding: '0.75rem 1rem' }}>
-                        <span className="price-final" style={{ fontSize: '0.9rem' }}>{final.toFixed(2)} EGP</span>
-                      </td>
-                      <td style={{ padding: '0.75rem 1rem' }}>
-                        {p.nfcCode ? <span className="badge badge-gold" style={{ fontSize: '0.7rem' }}>{p.nfcCode}</span> : <span style={{ color: 'var(--text-subtle)' }}>—</span>}
-                      </td>
-                      <td style={{ padding: '0.75rem 1rem' }}>
-                        <div style={{ display: 'flex', gap: '0.4rem' }}>
-                          <Link to={`/admin/products/view/${p.id}`} className="btn btn-ghost btn-sm" title="View"><FaEye /></Link>
-                          <Link to={`/admin/products/edit/${p.id}`} className="btn btn-ghost btn-sm" title="Edit"><FaEdit style={{ color: 'var(--gold)' }} /></Link>
-                          <button className="btn btn-ghost btn-sm" onClick={() => handleDelete(p.id, p.name)} title="Delete"><FaTrash style={{ color: '#e74c3c' }} /></button>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-            {products.length === 0 && (
-              <p style={{ textAlign: 'center', padding: '3rem', color: 'var(--text-muted)' }}>No products yet. <Link to="/admin/products/add" style={{ color: 'var(--gold)' }}>Add one →</Link></p>
-            )}
-          </div>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>

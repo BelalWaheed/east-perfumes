@@ -1,58 +1,99 @@
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useMemo } from 'react';
+import { useParams, Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import { useSEO } from '@/hooks/useSEO';
-import { calcFinalPrice, formatEGP } from '@/lib/utils';
-import { FaEdit, FaArrowLeft, FaCheckCircle } from 'react-icons/fa';
+import { HiPencil, HiArrowLeft, HiShieldCheck } from 'react-icons/hi';
+import { formatCurrency, calcFinalPrice } from '@/lib/utils';
+import { useTranslation } from '@/hooks/useTranslation';
 
 export default function AdminProductDetails() {
-  const { id }       = useParams();
-  const navigate     = useNavigate();
+  const { productId } = useParams();
   const { products } = useSelector((s) => s.products);
-  const product      = products.find((p) => p.id === id);
+  const { t, isRTL } = useTranslation();
 
-  useSEO({ title: product ? `Detail: ${product.name}` : 'Product Detail' });
-
-  if (!product) return (
-    <div style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-muted)' }}>
-      Product not found. <Link to="/admin/products" style={{ color: 'var(--gold)' }}>← Back</Link>
-    </div>
+  const product = useMemo(
+    () => products.find((p) => String(p.id) === String(productId)),
+    [products, productId]
   );
 
-  const final = calcFinalPrice(product.price, product.discount);
+  if (!product) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 py-20 text-center">
+        <h2 className="text-3xl font-bold text-foreground mb-4">{t('common.productNotFound')}</h2>
+        <Link to="/admin/products" className="btn-premium px-8 py-3 text-white inline-block">
+          {t('common.back')}
+        </Link>
+      </div>
+    );
+  }
+
+  const finalPrice = calcFinalPrice(product.price, product.discount);
 
   return (
-    <div className="section" style={{ paddingTop: '2rem' }}>
-      <div className="container" style={{ maxWidth: 700 }}>
-        <button className="btn btn-ghost btn-sm" onClick={() => navigate(-1)} style={{ marginBottom: '1.5rem', display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}>
-          <FaArrowLeft size={12} /> Back
-        </button>
-        <div className="card" style={{ padding: '2rem' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '220px 1fr', gap: '2rem', alignItems: 'start' }}>
-            <div style={{ background: 'var(--surface-raised)', borderRadius: 12, padding: '1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 200 }}>
-              <img src={product.image} alt={product.name} style={{ maxHeight: 180, maxWidth: '100%', objectFit: 'contain' }} />
-            </div>
-            <div>
-              <span className="badge badge-gold" style={{ textTransform: 'capitalize', marginBottom: '0.75rem' }}>{product.category}</span>
-              <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.4rem', marginBottom: '0.75rem' }}>{product.name}</h1>
-              <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem', lineHeight: 1.7, marginBottom: '1rem' }}>{product.description}</p>
+    <div className="max-w-4xl mx-auto px-4 py-12">
+      <Link
+        to="/admin/products"
+        className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors mb-8 group"
+      >
+        <HiArrowLeft className={`group-hover:-translate-x-1 transition-transform ${isRTL ? 'rotate-180' : ''}`} />
+        {t('common.back')}
+      </Link>
 
-              <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', marginBottom: '0.75rem' }}>
-                <div><div style={{ fontSize: '0.75rem', color: 'var(--text-subtle)' }}>Original Price</div><div style={{ fontWeight: 600 }}>{formatEGP(product.price)}</div></div>
-                <div><div style={{ fontSize: '0.75rem', color: 'var(--text-subtle)' }}>Discount</div><div style={{ fontWeight: 600, color: '#e74c3c' }}>{product.discount || 0}%</div></div>
-                <div><div style={{ fontSize: '0.75rem', color: 'var(--text-subtle)' }}>Final Price</div><div className="price-final">{formatEGP(final)}</div></div>
-              </div>
+      <div className="card-premium p-8">
+        <div className="grid md:grid-cols-2 gap-8">
+          {/* Image */}
+          <div className="rounded-2xl overflow-hidden bg-linear-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-900 p-8 flex items-center justify-center">
+            <img
+              src={product.image}
+              alt={product.name}
+              className="max-h-64 object-contain"
+            />
+          </div>
 
-              {product.nfcCode && (
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1rem', fontSize: '0.85rem', color: 'var(--gold)' }}>
-                  <FaCheckCircle /> NFC Code: <strong>{product.nfcCode}</strong>
-                </div>
-              )}
-              <div style={{ fontSize: '0.78rem', color: 'var(--text-subtle)', marginBottom: '1rem' }}>ID: {product.id}</div>
-
-              <Link to={`/admin/products/edit/${product.id}`} className="btn btn-gold btn-sm" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}>
-                <FaEdit size={12} /> Edit Product
+          {/* Info */}
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-medium px-3 py-1 rounded-full bg-primary/10 text-primary capitalize">
+                {product.category}
+              </span>
+              <Link
+                to={`/admin/products/edit/${product.id}`}
+                className="flex items-center gap-2 px-4 py-2 rounded-xl border border-border text-sm font-medium hover:bg-secondary transition-colors"
+              >
+                <HiPencil /> {t('admin.edit')}
               </Link>
             </div>
+
+            <h1 className="text-2xl font-bold text-foreground">{product.name}</h1>
+            {product.description && (
+              <p className="text-muted-foreground text-sm">{product.description}</p>
+            )}
+
+            <div className="space-y-2 pt-4 border-t border-border">
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">{t('admin.price')}</span>
+                <span className="font-semibold text-foreground">{formatCurrency(product.price)}</span>
+              </div>
+              {product.discount > 0 && (
+                <>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">{t('admin.discount')}</span>
+                    <span className="text-destructive font-semibold">-{product.discount}%</span>
+                  </div>
+                  <div className="flex justify-between text-sm font-bold">
+                    <span className="text-foreground">{t('common.finalPrice')}</span>
+                    <span className="gradient-text">{formatCurrency(finalPrice)}</span>
+                  </div>
+                </>
+              )}
+            </div>
+
+            {product.nfcCode && (
+              <div className="flex items-center gap-2 text-sm text-green-500 pt-4 border-t border-border">
+                <HiShieldCheck className="text-lg" />
+                NFC: <code className="px-2 py-0.5 bg-secondary rounded font-mono text-foreground">{product.nfcCode}</code>
+              </div>
+            )}
+
           </div>
         </div>
       </div>

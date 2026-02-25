@@ -1,23 +1,33 @@
 import { createSlice } from '@reduxjs/toolkit';
 
-const STORAGE_KEY = 'ep-theme';
-
 const themeSlice = createSlice({
   name: 'theme',
   initialState: {
-    isDark: false,
+    theme: typeof window !== 'undefined' ? localStorage.getItem('theme') !== 'dark' : true,
   },
   reducers: {
-    initializeTheme: (state) => {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      state.isDark = saved ? JSON.parse(saved) : false;
+    darkMode: (state) => {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
+      state.theme = false;
     },
-    toggleTheme: (state) => {
-      state.isDark = !state.isDark;
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state.isDark));
+    lightMode: (state) => {
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
+      state.theme = true;
+    },
+    initializeTheme: (state) => {
+      const savedTheme = localStorage.getItem('theme');
+      if (savedTheme === 'dark') {
+        document.documentElement.classList.add('dark');
+        state.theme = false;
+      } else {
+        document.documentElement.classList.remove('dark');
+        state.theme = true;
+      }
     },
   },
 });
 
-export const { initializeTheme, toggleTheme } = themeSlice.actions;
+export const { darkMode, lightMode, initializeTheme } = themeSlice.actions;
 export const theme = themeSlice.reducer;

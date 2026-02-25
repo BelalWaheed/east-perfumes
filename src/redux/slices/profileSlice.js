@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { userApi } from '@/lib/api';
+import { calcPointsEarned, pointsToEgp } from '@/lib/utils';
 
 // ─── Thunks ────────────────────────────────────────────────
 /** Restore session from localStorage on app mount */
@@ -20,14 +21,18 @@ export const restoreSession = createAsyncThunk(
 /** Purchase a product: update purchasedProducts + points in DB */
 export const purchaseProduct = createAsyncThunk(
   'profile/purchase',
-  async ({ user, product, finalPrice, pointsUsed = 0 }, { rejectWithValue }) => {
+  async ({ user, product, finalPrice, pointsUsed = 0, fixedPoints }, { rejectWithValue }) => {
     try {
-      const pointsEarned = Math.floor(finalPrice - pointsUsed * 0.5);
+      // If fixedPoints is provided (e.g., NFC scan), use it; otherwise calculate based on spent amount
+      const pointsEarned = fixedPoints !== undefined 
+        ? fixedPoints 
+        : calcPointsEarned(Math.max(0, finalPrice - pointsToEgp(pointsUsed)));
+
       const updated = {
         purchasedProducts: [...(user.purchasedProducts || []), product.id],
-        totalPoints: (user.totalPoints || 0) + pointsEarned,
-        usedPoints: (user.usedPoints || 0) + pointsUsed,
-        availablePoints: (user.availablePoints || 0) + pointsEarned - pointsUsed,
+        totalPoints:      (user.totalPoints || 0) + pointsEarned,
+        usedPoints:       (user.usedPoints || 0) + pointsUsed,
+        availablePoints:  Math.max(0, (user.availablePoints || 0) + pointsEarned - pointsUsed),
       };
       return await userApi.update(user.id, updated);
     } catch (err) {

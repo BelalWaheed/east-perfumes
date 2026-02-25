@@ -1,187 +1,306 @@
-import { useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useEffect, useMemo, useState } from 'react';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import { useSEO } from '@/hooks/useSEO';
-import { calcFinalPrice, generateWhatsAppLink, pointsToEgp, maxRedeemablePoints, formatEGP } from '@/lib/utils';
-import { purchaseProduct } from '@/redux/slices/profileSlice';
-import { FaWhatsapp, FaArrowLeft, FaGem, FaMinus, FaPlus, FaCheckCircle } from 'react-icons/fa';
-import Swal from 'sweetalert2';
+import { FaWhatsapp, FaChevronLeft, FaChevronRight, FaCartPlus, FaCheck } from 'react-icons/fa';
+import { HiShieldCheck } from 'react-icons/hi';
+import { addToCart } from '@/redux/slices/cartSlice';
+import ProductCard from '@/components/ProductCard';
+import Loader from '@/components/Loader';
+import { useTranslation } from '@/hooks/useTranslation';
+import {
+  formatCurrency,
+  calcFinalPrice,
+  calcPointsEarned,
+  maxRedeemablePoints,
+  pointsToEgp,
+  generateWhatsAppLink,
+} from '@/lib/utils';
 
 export default function ProductDetails() {
-  const { id }        = useParams();
-  const dispatch      = useDispatch();
-  const { products }  = useSelector((s) => s.products);
+  const { productId } = useParams();
+  const { products, loading } = useSelector((s) => s.products);
   const { loggedUser, logged } = useSelector((s) => s.profile);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { t, isRTL } = useTranslation();
+  const [pointsToUse, setPointsToUse] = useState(0);
+  const [isZoomed, setIsZoomed] = useState(false);
+  const [justAdded, setJustAdded] = useState(false);
+  const cartItems = useSelector((s) => s.cart.items);
+  const inCart = cartItems.some((i) => String(i.id) === String(productId));
 
-  const product    = products.find((p) => p.id === id);
-  const [points, setPoints] = useState(0);
-  const [loading, setLoading] = useState(false);
+  const BackIcon = isRTL ? FaChevronRight : FaChevronLeft;
 
-  useSEO({
-    title: product?.name || 'Product',
-    description: product?.description,
-    image: product?.image,
-  });
+  const product = useMemo(
+    () => products.find((p) => String(p.id) === String(productId)),
+    [products, productId]
+  );
+
+  // Reset points slider when product changes
+  useEffect(() => {
+    setPointsToUse(0);
+  }, [productId]);
+
+  // Scroll to top on navigate
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [productId]);
+
+  if (loading) return <Loader message={t('common.loading')} />;
 
   if (!product) {
     return (
-      <div style={{ textAlign: 'center', padding: '6rem 1rem', color: 'var(--text-muted)' }}>
-        <p style={{ fontSize: '1.25rem', marginBottom: '1rem' }}>Product not found.</p>
-        <Link to="/products" className="btn btn-gold">Browse Products</Link>
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="w-24 h-24 mx-auto rounded-full bg-secondary flex items-center justify-center mb-6">
+            <span className="text-4xl">🔍</span>
+          </div>
+          <h1 className="text-3xl font-bold text-foreground mb-4">
+            {t('common.productNotFound')}
+          </h1>
+          <Link to="/products" className="btn-premium text-white px-6 py-3 inline-flex items-center gap-2">
+            <BackIcon className="text-sm" />
+            {t('common.backToProducts')}
+          </Link>
+        </div>
       </div>
     );
   }
 
-  const finalPrice   = calcFinalPrice(product.price, product.discount);
-  const hasDiscount  = product.discount > 0;
-  const discount     = pointsToEgp(points);
-  const payable      = Math.max(0, finalPrice - discount);
-  const maxPoints    = logged ? maxRedeemablePoints(finalPrice, loggedUser?.availablePoints || 0) : 0;
-  const alreadyOwned = loggedUser?.purchasedProducts?.includes(product.id);
-  const waLink       = generateWhatsAppLink(product, finalPrice, points);
+  const finalPrice = calcFinalPrice(product.price, product.discount);
+  const hasDiscount = product.discount > 0;
+  const relatedProducts = products
+    .filter((p) => p.category === product.category && p.id !== product.id)
+    .slice(0, 4);
 
-  const handlePurchase = async () => {
-    if (!logged) { Swal.fire('Sign in required', 'Please sign in to purchase.', 'info'); return; }
-    if (alreadyOwned) { Swal.fire('Already Owned', 'You already have this fragrance.', 'info'); return; }
+  // Points calculations
+  const availablePoints = loggedUser?.availablePoints || 0;
+  const maxPoints = maxRedeemablePoints(finalPrice, availablePoints);
+  const pointsDiscount = pointsToEgp(pointsToUse);
+  const payablePrice = finalPrice - pointsDiscount;
+  const earnablePoints = calcPointsEarned(payablePrice);
 
-    const confirm = await Swal.fire({
-      title: 'Confirm Purchase',
-      html: `
-        <p style="margin-bottom:0.5rem">You will be ordering via WhatsApp.</p>
-        <p><b>Payable:</b> ${formatEGP(payable)}</p>
-        ${points > 0 ? `<p style="color:#c9a84c"><b>Points Used:</b> ${points} pts (−${formatEGP(discount)})</p>` : ''}
-      `,
-      icon: 'question',
-      showCancelButton: true,
-      confirmButtonText: '✅ Confirm & Order',
-      confirmButtonColor: '#9b7d33',
-    });
-    if (!confirm.isConfirmed) return;
+  const handleOrder = () => {
+    // Open WhatsApp
+    window.open(generateWhatsAppLink(product, finalPrice, pointsToUse), '_blank');
+  };
 
-    setLoading(true);
-    try {
-      await dispatch(purchaseProduct({ user: loggedUser, product, finalPrice, pointsUsed: points })).unwrap();
-      window.open(waLink, '_blank');
-      Swal.fire('Order Placed! 🌹', 'Your order has been sent via WhatsApp. Points updated.', 'success');
-      setPoints(0);
-    } catch {
-      Swal.fire('Error', 'Something went wrong. Please try again.', 'error');
-    } finally {
-      setLoading(false);
-    }
+  const handleAddToCart = () => {
+    dispatch(addToCart(product));
+    setJustAdded(true);
+    setTimeout(() => setJustAdded(false), 1500);
   };
 
   return (
-    <div className="section" style={{ paddingTop: '2rem' }}>
-      <div className="container">
-        <Link to="/products" className="btn btn-ghost btn-sm" style={{ marginBottom: '2rem', display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}>
-          <FaArrowLeft size={12} /> Back to Products
+    <div className="min-h-screen py-8 px-4">
+      <div className="max-w-7xl mx-auto">
+        {/* Breadcrumb */}
+        <Link
+          to="/products"
+          className="inline-flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors mb-8 group"
+        >
+          <BackIcon className="text-sm group-hover:-translate-x-1 transition-transform" />
+          <span>{t('common.backToProducts')}</span>
         </Link>
 
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '3rem', alignItems: 'start' }}>
-          {/* Image */}
-          <div className="card" style={{ padding: '2rem', display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 360, background: 'var(--surface-raised)' }}>
-            <img src={product.image} alt={product.name} style={{ maxHeight: 320, maxWidth: '100%', objectFit: 'contain' }} />
+        {/* Product Details Section */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12 mb-20">
+          {/* Product Image */}
+          <div className="space-y-4">
+            <div
+              className={`relative card-premium aspect-square overflow-hidden cursor-zoom-in transition-all duration-300 ${
+                isZoomed ? 'shadow-glow' : ''
+              }`}
+              onClick={() => setIsZoomed(!isZoomed)}
+              onMouseLeave={() => setIsZoomed(false)}
+            >
+              {/* Category Badge */}
+              <span className="absolute top-4 inset-s-4 z-10 px-4 py-1.5 text-sm font-medium rounded-full bg-primary/90 text-primary-foreground capitalize backdrop-blur-sm">
+                {t(`categories.${product.category}`, product.category)}
+              </span>
+
+              {/* Discount Badge */}
+              {hasDiscount && (
+                <span className="absolute top-4 inset-e-4 z-20 px-6 py-3 text-4xl font-black rounded-2xl bg-destructive text-white shadow-[0_0_30px_rgba(239,68,68,0.6)] animate-pulse ring-4 ring-white/30">
+                  -{product.discount}%
+                </span>
+              )}
+
+              <img
+                src={product.image}
+                alt={product.name}
+                className={`w-full h-full object-contain p-8 transition-transform duration-500 ${
+                  isZoomed ? 'scale-150' : 'hover:scale-105'
+                }`}
+                onError={(e) => {
+                  e.currentTarget.src = 'https://via.placeholder.com/500x500?text=No+Image';
+                }}
+              />
+
+              {/* NFC Badge */}
+              {product.nfcCode && (
+                <span className="absolute bottom-4 inset-s-4 flex items-center gap-2 px-4 py-2 rounded-full bg-green-500/90 text-white text-sm font-medium backdrop-blur-sm">
+                  <HiShieldCheck className="text-lg" />
+                  {t('common.authentic')}
+                </span>
+              )}
+
+              {!isZoomed && (
+                <div className="absolute bottom-4 inset-e-4 px-3 py-1.5 rounded-full bg-black/60 text-white text-xs backdrop-blur-sm">
+                  {t('common.clickToZoom')}
+                </div>
+              )}
+            </div>
           </div>
 
-          {/* Details */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-            <div>
-              <span className="badge badge-gold" style={{ textTransform: 'capitalize', marginBottom: '0.75rem' }}>{product.category}</span>
-              <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: 'clamp(1.5rem, 3vw, 2rem)', lineHeight: 1.2, marginBottom: '0.5rem' }}>{product.name}</h1>
-              <p style={{ color: 'var(--text-muted)', lineHeight: 1.7, fontSize: '0.95rem' }}>{product.description}</p>
+          {/* Product Info */}
+          <div className="flex flex-col">
+            <div className="mb-6">
+              <span className="text-sm font-medium text-primary capitalize">{t(`categories.${product.category}`, product.category)}</span>
+              <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-foreground mt-1">
+                {t(`productData.${product.name.toLowerCase().replace(/\s+/g, '-')}.name`, product.name)}
+              </h1>
             </div>
 
-            {/* Price */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
-              {hasDiscount && (
-                <>
-                  <span className="price-original" style={{ fontSize: '1rem' }}>{formatEGP(product.price)}</span>
-                  <span className="discount-badge">-{product.discount}%</span>
-                </>
-              )}
-              <span className="price-final" style={{ fontSize: '1.5rem' }}>{formatEGP(finalPrice)}</span>
-            </div>
-
-            {/* NFC code */}
-            {product.nfcCode && (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.6rem 1rem', background: 'var(--gold-glow)', border: '1px solid var(--border)', borderRadius: 8, fontSize: '0.82rem', color: 'var(--text-muted)' }}>
-                <FaCheckCircle style={{ color: 'var(--gold)' }} />
-                NFC Verified — Code: <strong style={{ color: 'var(--gold)' }}>{product.nfcCode}</strong>
-              </div>
+            {/* Description */}
+            {(product.description || t(`productData.${product.name.toLowerCase().replace(/\s+/g, '-')}.description`, '')) && (
+              <p className="text-muted-foreground text-lg leading-relaxed mb-8 flex-1">
+                {t(`productData.${product.name.toLowerCase().replace(/\s+/g, '-')}.description`, product.description)}
+              </p>
             )}
 
-            {/* Points Redemption */}
-            {logged && (loggedUser?.availablePoints || 0) > 0 && (
-              <div className="card" style={{ padding: '1rem' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '0.75rem' }}>
-                  <FaGem style={{ color: 'var(--gold)' }} />
-                  <span style={{ fontWeight: 600, fontSize: '0.9rem' }}>Redeem Points</span>
-                  <span className="badge badge-gold">{loggedUser?.availablePoints || 0} pts available</span>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                  <button className="btn btn-ghost btn-sm" onClick={() => setPoints((p) => Math.max(0, p - 10))} disabled={points === 0}><FaMinus size={12} /></button>
-                  <div style={{ flex: 1 }}>
-                    <input
-                      id="points-input"
-                      type="range"
-                      min={0}
-                      max={maxPoints}
-                      step={10}
-                      value={points}
-                      onChange={(e) => setPoints(Number(e.target.value))}
-                      style={{ width: '100%', accentColor: 'var(--gold)' }}
-                    />
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: 'var(--text-subtle)' }}>
-                      <span>0</span><span>{maxPoints}</span>
-                    </div>
-                  </div>
-                  <button className="btn btn-ghost btn-sm" onClick={() => setPoints((p) => Math.min(maxPoints, p + 10))} disabled={points >= maxPoints}><FaPlus size={12} /></button>
-                </div>
-                {points > 0 && (
-                  <div style={{ marginTop: '0.75rem', padding: '0.6rem', background: 'var(--bg-secondary)', borderRadius: 8, fontSize: '0.83rem' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                      <span style={{ color: 'var(--text-muted)' }}>Points discount ({points} pts):</span>
-                      <span style={{ color: 'var(--gold)' }}>−{formatEGP(discount)}</span>
-                    </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 700, marginTop: '0.3rem' }}>
-                      <span>Payable:</span>
-                      <span className="text-gold">{formatEGP(payable)}</span>
-                    </div>
-                  </div>
+            {/* Price Card */}
+            <div className="card-premium p-6 mb-6">
+              <div className="flex items-baseline gap-4 mb-4">
+                <span className="text-2xl md:text-3xl lg:text-4xl font-bold gradient-text">
+                  {formatCurrency(finalPrice)}
+                </span>
+                {hasDiscount && (
+                  <span className="text-lg text-muted-foreground line-through">
+                    {formatCurrency(product.price)}
+                  </span>
                 )}
               </div>
-            )}
 
-            {/* Actions */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-              {alreadyOwned ? (
-                <div style={{ padding: '0.75rem', background: 'rgba(39,174,96,0.1)', border: '1px solid rgba(39,174,96,0.3)', borderRadius: 8, color: '#27ae60', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                  <FaCheckCircle /> You already own this fragrance
+              {/* Points Section */}
+              {logged && (
+                <div className="border-t border-border pt-4 mt-4 space-y-3">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">{t('common.availablePoints')}</span>
+                    <span className="font-semibold text-primary">{availablePoints}</span>
+                  </div>
+
+                  <div>
+                    <label className="text-sm text-muted-foreground">{t('common.redeemPoints')}</label>
+                    <input
+                      type="range"
+                      min="0"
+                      max={maxPoints}
+                      step="1"
+                      value={pointsToUse}
+                      onChange={(e) => setPointsToUse(Number(e.target.value))}
+                      className="w-full mt-1 accent-primary"
+                    />
+                    <div className="flex justify-between text-xs text-muted-foreground mt-1">
+                      <span>0</span>
+                      <span className="font-medium text-foreground">{pointsToUse} {t('common.points')}</span>
+                      <span>{maxPoints}</span>
+                    </div>
+                  </div>
+
+                  {pointsToUse > 0 && (
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">{t('common.pointsDiscount')}</span>
+                      <span className="font-semibold text-green-500">-{formatCurrency(pointsDiscount)}</span>
+                    </div>
+                  )}
+
+                  <div className="flex justify-between text-lg font-bold border-t border-border pt-3">
+                    <span>{t('common.finalPrice')}</span>
+                    <span className="gradient-text">{formatCurrency(payablePrice)}</span>
+                  </div>
+
+                  <p className="text-xs text-muted-foreground">
+                    {t('common.earnPoints')}: +{earnablePoints} {t('common.points')}
+                  </p>
                 </div>
-              ) : (
-                <button
-                  id="purchase-btn"
-                  className="btn btn-gold btn-full btn-lg"
-                  onClick={handlePurchase}
-                  disabled={loading}
-                >
-                  {loading ? 'Processing…' : '🛒 Confirm Purchase'}
-                </button>
               )}
-              <a
-                id={`wa-order-${id}`}
-                href={waLink}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn btn-full"
-                style={{ justifyContent: 'center', background: 'linear-gradient(135deg, #128c7e, #25d366)', color: 'white', padding: '0.75rem', borderRadius: 8, textDecoration: 'none', fontWeight: 600 }}
-              >
-                <FaWhatsapp size={18} /> Order via WhatsApp
-              </a>
+              
+
+              {/* Guest Points Invitation */}
+              {!logged && (
+                <div className="border-t border-border pt-4 mt-4">
+                  <p className="text-sm font-medium text-foreground text-center sm:text-start">
+                    {t('common.earnPointsGuest').replace('{points}', earnablePoints)}
+                  </p>
+                  <Link to="/login" className="text-xs text-primary hover:underline mt-1 block text-center sm:text-start">
+                    {t('common.login')} / {t('common.signUp')}
+                  </Link>
+                </div>
+              )}
             </div>
+
+            {/* Action Buttons */}
+            <div className="flex gap-3">
+              <button
+                onClick={handleOrder}
+                className="flex-1 flex items-center justify-center gap-3 py-4 rounded-xl bg-green-500 hover:bg-green-600 text-white text-lg font-semibold transition-all hover:shadow-lg hover:scale-[1.01]"
+              >
+                <FaWhatsapp className="text-2xl" />
+                {t('common.orderViaWhatsApp')}
+              </button>
+              <button
+                onClick={handleAddToCart}
+                className={`px-5 py-4 rounded-xl text-lg font-semibold transition-all hover:shadow-lg hover:scale-[1.01] flex items-center justify-center gap-2 ${
+                  justAdded
+                    ? 'bg-green-500 text-white'
+                    : inCart
+                      ? 'bg-primary/80 text-white hover:bg-primary'
+                      : 'bg-primary text-white hover:bg-primary/90'
+                }`}
+                title={t('common.addToCart')}
+              >
+                {justAdded ? <FaCheck className="text-xl" /> : <FaCartPlus className="text-xl" />}
+              </button>
+            </div>
+
+            {/* Authentic Status */}
+            {product.nfcCode && (
+              <div className="flex items-center gap-2 text-sm text-green-500 font-medium mt-4">
+                <HiShieldCheck className="text-xl" />
+                {t('common.authentic')}
+              </div>
+            )}
           </div>
         </div>
+
+        {/* Customer Service Link */}
+        <div className="mb-12 p-6 rounded-2xl bg-secondary/30 border border-border flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div>
+            <h3 className="font-semibold text-foreground">{t('customerService.needHelp')}</h3>
+            <p className="text-sm text-muted-foreground">{t('customerService.helpDesc')}</p>
+          </div>
+          <Link
+            to="/customer-service"
+            className="px-6 py-2.5 rounded-xl border border-border text-foreground hover:bg-secondary transition-all font-medium whitespace-nowrap"
+          >
+            {t('footer.customerService')}
+          </Link>
+        </div>
+
+        {/* Related Products */}
+        {relatedProducts.length > 0 && (
+          <section>
+            <h2 className="text-2xl md:text-3xl font-bold mb-8">
+              <span className="gradient-text">{t('common.relatedProducts')}</span>
+            </h2>
+            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+              {relatedProducts.map((p) => (
+                <ProductCard key={p.id} product={p} />
+              ))}
+            </div>
+          </section>
+        )}
       </div>
     </div>
   );

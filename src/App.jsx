@@ -1,53 +1,70 @@
-import { useEffect } from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { Route, Routes, useLocation } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-
+import { initializeTheme } from '@/redux/slices/themeSlice';
+import { initializeLanguage } from '@/redux/slices/languageSlice';
 import { fetchProducts } from '@/redux/slices/productSlice';
 import { fetchUsers } from '@/redux/slices/userSlice';
 import { restoreSession } from '@/redux/slices/profileSlice';
+import { setPlaylist } from '@/redux/slices/audioSlice';
 
 import UserLayout from '@/layouts/UserLayout';
 import AdminLayout from '@/layouts/AdminLayout';
+import Navbar from '@/components/Navbar';
+import AdminNav from '@/components/AdminNav';
 import Loader from '@/components/Loader';
+import NotFound from '@/pages/user/NotFound';
 
 export default function App() {
   const dispatch = useDispatch();
+  const location = useLocation();
+  const isAdminPath = location.pathname.startsWith('/admin');
+  const [initialLoading, setInitialLoading] = useState(true);
+
   const { logged, loggedUser } = useSelector((s) => s.profile);
-  const { loading: productsLoading } = useSelector((s) => s.products);
-  const { loading: usersLoading }    = useSelector((s) => s.user);
-  const { isDark } = useSelector((s) => s.theme);
 
-  // Apply theme to document root
+  // Initialize theme and language on mount
   useEffect(() => {
-    document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
-    document.body.classList.toggle('dark', isDark);
-  }, [isDark]);
-
-  // Boot: restore session + fetch data
-  useEffect(() => {
-    dispatch(restoreSession());
-    dispatch(fetchProducts());
-    dispatch(fetchUsers());
+    dispatch(initializeTheme());
+    dispatch(initializeLanguage());
   }, [dispatch]);
 
-  const isAdmin = logged && loggedUser?.role === 'admin';
+  // Fetch initial data
+  useEffect(() => {
+    async function boot() {
+      try {
+        await Promise.all([
+          dispatch(fetchProducts()),
+          dispatch(fetchUsers()),
+          dispatch(restoreSession()),
+        ]);
+      } catch (err) {
+        console.error('Error fetching initial data:', err);
+      } finally {
+        setInitialLoading(false);
+      }
+    }
+    boot();
+  }, [dispatch]);
 
-  // Show loader only on first load (both fetches in flight)
-  if (productsLoading && usersLoading) return <Loader fullscreen />;
+  // Loading screen
+  if (initialLoading) {
+    return (
+      <div className="min-h-screen bg-linear-to-l from-gray-50 to-gray-100 dark:from-[#0f172a] dark:to-[#1e293b]">
+        {isAdminPath ? <AdminNav /> : <Navbar />}
+        <Loader />
+      </div>
+    );
+  }
+
+  const isAdmin = loggedUser?.role === 'admin';
 
   return (
     <Routes>
-      {/* User routes */}
       <Route path="/*" element={<UserLayout />} />
-
-      {/* Admin routes – require admin role */}
       <Route
         path="/admin/*"
-        element={
-          isAdmin
-            ? <AdminLayout />
-            : <Navigate to="/login" replace />
-        }
+        element={isAdmin ? <AdminLayout /> : <NotFound />}
       />
     </Routes>
   );

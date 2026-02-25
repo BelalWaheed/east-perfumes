@@ -1,132 +1,153 @@
-import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
+import { useState, useEffect, useMemo } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { useSelector, useDispatch } from 'react-redux';
 import { updateUser } from '@/redux/slices/userSlice';
-import { useSEO } from '@/hooks/useSEO';
-import { FaArrowLeft } from 'react-icons/fa';
+import { useTranslation } from '@/hooks/useTranslation';
+import Loader from '@/components/Loader';
 import Swal from 'sweetalert2';
 
 export default function EditUser() {
-  useSEO({ title: 'Edit User' });
-  const { id }       = useParams();
-  const dispatch     = useDispatch();
-  const navigate     = useNavigate();
-  const { allUsers } = useSelector((s) => s.user);
-  const existing     = allUsers.find((u) => u.id === id);
+  const { userId } = useParams();
+  const { allUsers, loading } = useSelector((s) => s.user);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { t } = useTranslation();
+  const [saving, setSaving] = useState(false);
 
-  const [form, setForm] = useState({
-    name: '', email: '', password: '', role: 'user',
-    availablePoints: 0, totalPoints: 0, usedPoints: 0, audioURL: '',
-  });
-  const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    if (existing) {
-      setForm({
-        name: existing.name || '',
-        email: existing.email || '',
-        password: existing.password || '',
-        role: existing.role || 'user',
-        availablePoints: existing.availablePoints ?? 0,
-        totalPoints: existing.totalPoints ?? 0,
-        usedPoints: existing.usedPoints ?? 0,
-        audioURL: existing.audioURL || '',
-      });
-    }
-  }, [existing]);
-
-  if (!existing) return (
-    <div style={{ padding: '3rem', textAlign: 'center', color: 'var(--text-muted)' }}>
-      User not found. <button className="btn btn-ghost btn-sm" onClick={() => navigate(-1)}>← Back</button>
-    </div>
+  const user = useMemo(
+    () => allUsers.find((u) => String(u.id) === String(userId)),
+    [allUsers, userId]
   );
 
-  const handle = (e) => setForm((p) => ({ ...p, [e.target.name]: e.target.value }));
+  const [form, setForm] = useState({
+    name: '',
+    email: '',
+    password: '',
+    gender: '',
+    role: 'user',
+  });
 
-  const submit = async (e) => {
-    e.preventDefault();
-    if (!form.name || !form.email) {
-      Swal.fire('Missing fields', 'Name and email are required.', 'warning'); return;
+  useEffect(() => {
+    if (user) {
+      setForm({
+        name: user.name || '',
+        email: user.email || '',
+        password: '',
+        gender: user.gender || '',
+        role: user.role || 'user',
+      });
     }
-    const payload = {
-      name: form.name.trim(),
-      email: form.email.trim().toLowerCase(),
-      password: form.password,
-      role: form.role,
-      availablePoints: Number(form.availablePoints) || 0,
-      totalPoints: Number(form.totalPoints) || 0,
-      usedPoints: Number(form.usedPoints) || 0,
-      audioURL: form.role === 'admin' ? form.audioURL.trim() : '',
-    };
-    setLoading(true);
+  }, [user]);
+
+  const handleChange = (e) => setForm((p) => ({ ...p, [e.target.name]: e.target.value }));
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!form.name.trim()) return Swal.fire({ icon: 'error', text: t('auth.nameRequired') });
+    if (!form.email.trim()) return Swal.fire({ icon: 'error', text: t('auth.emailRequired') });
+
+    setSaving(true);
     try {
-      await dispatch(updateUser({ id, data: payload })).unwrap();
-      Swal.fire({ title: 'User Updated!', icon: 'success', timer: 1500, showConfirmButton: false });
+      const data = {
+        name: form.name,
+        email: form.email,
+        gender: form.gender,
+        role: form.role,
+      };
+      if (form.password.trim()) data.password = form.password;
+      await dispatch(updateUser({ id: user.id, data })).unwrap();
+      Swal.fire({ icon: 'success', text: t('admin.userUpdated'), timer: 1500, showConfirmButton: false });
       navigate('/admin/users');
     } catch {
-      Swal.fire('Error', 'Could not update user.', 'error');
-    } finally {
-      setLoading(false);
+      Swal.fire({ icon: 'error', text: t('admin.error') });
     }
+    setSaving(false);
   };
 
-  return (
-    <div className="section" style={{ paddingTop: '2rem' }}>
-      <div className="container" style={{ maxWidth: 600 }}>
-        <button className="btn btn-ghost btn-sm" onClick={() => navigate(-1)} style={{ marginBottom: '1.5rem', display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}>
-          <FaArrowLeft size={12} /> Back
-        </button>
-        <div className="card" style={{ padding: '2rem' }}>
-          <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: '1.5rem', marginBottom: '1.5rem' }}>
-            Edit <span className="gradient-gold">User</span>
-          </h1>
-          <form onSubmit={submit} noValidate>
-            {[
-              { label: 'Full Name *', name: 'name',     type: 'text',     placeholder: 'User name' },
-              { label: 'Email *',     name: 'email',    type: 'email',    placeholder: 'user@example.com' },
-              { label: 'Password',    name: 'password', type: 'password', placeholder: 'Leave blank to keep current' },
-            ].map(({ label, name, type, placeholder }) => (
-              <div className="form-group" key={name}>
-                <label className="label">{label}</label>
-                <input id={`edit-user-${name}`} name={name} type={type} className="input" placeholder={placeholder} value={form[name]} onChange={handle} />
-              </div>
-            ))}
-
-            <div className="form-group">
-              <label className="label">Role</label>
-              <select id="edit-user-role" name="role" className="input" value={form.role} onChange={handle}>
-                <option value="user">User</option>
-                <option value="admin">Admin</option>
-              </select>
-            </div>
-
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.75rem' }}>
-              {[
-                { label: 'Available Points', name: 'availablePoints' },
-                { label: 'Total Points',     name: 'totalPoints' },
-                { label: 'Used Points',      name: 'usedPoints' },
-              ].map(({ label, name }) => (
-                <div className="form-group" key={name} style={{ margin: 0 }}>
-                  <label className="label" style={{ fontSize: '0.78rem' }}>{label}</label>
-                  <input id={`edit-${name}`} name={name} type="number" className="input" min={0} value={form[name]} onChange={handle} />
-                </div>
-              ))}
-            </div>
-
-            {form.role === 'admin' && (
-              <div className="form-group" style={{ marginTop: '1rem' }}>
-                <label className="label">🎵 Audio URL (Admin Only)</label>
-                <input id="edit-user-audio" name="audioURL" type="url" className="input" placeholder="https://…mp3" value={form.audioURL} onChange={handle} />
-                <p style={{ fontSize: '0.75rem', color: 'var(--text-subtle)', marginTop: '0.3rem' }}>This audio plays on NFC verification pages.</p>
-              </div>
-            )}
-
-            <button id="edit-user-btn" type="submit" className="btn btn-gold btn-full btn-lg" disabled={loading} style={{ marginTop: '1rem' }}>
-              {loading ? 'Saving…' : '💾 Save Changes'}
-            </button>
-          </form>
-        </div>
+  if (loading) return <Loader message={t('common.loading')} />;
+  if (!user) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 py-20 text-center">
+        <h2 className="text-3xl font-bold text-foreground">{t('admin.userNotFound')}</h2>
       </div>
+    );
+  }
+
+  return (
+    <div className="max-w-2xl mx-auto px-4 py-12">
+      <h1 className="text-3xl font-bold mb-8">
+        <span className="gradient-text">{t('admin.editUser')}</span>
+      </h1>
+
+      <form onSubmit={handleSubmit} className="card-premium p-8 space-y-6">
+        <div>
+          <label className="text-sm font-medium text-foreground mb-2 block">{t('admin.name')} *</label>
+          <input name="name" value={form.name} onChange={handleChange}
+            className="w-full px-4 py-3 rounded-xl bg-secondary border border-border text-foreground focus:ring-2 focus:ring-primary/50 focus:outline-none" />
+        </div>
+
+        <div>
+          <label className="text-sm font-medium text-foreground mb-2 block">{t('auth.email')} *</label>
+          <input name="email" type="email" value={form.email} onChange={handleChange}
+            className="w-full px-4 py-3 rounded-xl bg-secondary border border-border text-foreground focus:ring-2 focus:ring-primary/50 focus:outline-none" />
+        </div>
+
+        <div className="grid md:grid-cols-2 gap-6">
+          <div>
+            <label className="text-sm font-medium text-foreground mb-2 block">{t('admin.gender')}</label>
+            <select name="gender" value={form.gender} onChange={handleChange}
+              className="w-full px-4 py-3 rounded-xl bg-secondary border border-border text-foreground focus:ring-2 focus:ring-primary/50 focus:outline-none">
+              <option value="">—</option>
+              <option value="male">{t('auth.male')}</option>
+              <option value="female">{t('auth.female')}</option>
+            </select>
+          </div>
+          <div>
+            <label className="text-sm font-medium text-foreground mb-2 block">{t('admin.role')}</label>
+            <select name="role" value={form.role} onChange={handleChange}
+              className="w-full px-4 py-3 rounded-xl bg-secondary border border-border text-foreground focus:ring-2 focus:ring-primary/50 focus:outline-none">
+              <option value="user">{t('admin.roleUser')}</option>
+              <option value="admin">{t('admin.roleAdmin')}</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label className="text-sm font-medium text-foreground mb-2 block">{t('auth.password')}</label>
+          <input name="password" type="password" value={form.password} onChange={handleChange}
+            placeholder={t('admin.leaveBlankPassword')}
+            className="w-full px-4 py-3 rounded-xl bg-secondary border border-border text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-primary/50 focus:outline-none" />
+        </div>
+
+        {/* Points Info (read-only) */}
+        <div className="border-t border-border pt-6">
+          <h3 className="text-sm font-semibold text-foreground mb-3">{t('profile.loyaltyPoints')}</h3>
+          <div className="grid grid-cols-3 gap-4 text-center">
+            <div className="p-3 rounded-xl bg-primary/5">
+              <p className="text-lg font-bold gradient-text">{user.totalPoints || 0}</p>
+              <p className="text-xs text-muted-foreground">{t('common.totalPoints')}</p>
+            </div>
+            <div className="p-3 rounded-xl bg-green-500/5">
+              <p className="text-lg font-bold text-green-500">{user.availablePoints || 0}</p>
+              <p className="text-xs text-muted-foreground">{t('common.availablePoints')}</p>
+            </div>
+            <div className="p-3 rounded-xl bg-orange-500/5">
+              <p className="text-lg font-bold text-orange-500">{user.usedPoints || 0}</p>
+              <p className="text-xs text-muted-foreground">{t('common.usedPoints')}</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex gap-4 pt-4">
+          <button type="submit" disabled={saving} className="btn-premium px-8 py-3 text-white font-semibold">
+            {saving ? t('common.loading') : t('admin.saveChanges')}
+          </button>
+          <button type="button" onClick={() => navigate('/admin/users')}
+            className="px-8 py-3 rounded-xl border border-border text-foreground hover:bg-secondary transition-all font-medium">
+            {t('profile.cancel')}
+          </button>
+        </div>
+      </form>
     </div>
   );
 }
