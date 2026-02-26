@@ -4,6 +4,7 @@ import { useSelector } from 'react-redux';
 import { HiSearch, HiX } from 'react-icons/hi';
 import { FaFilter } from 'react-icons/fa';
 import ProductCard from '@/components/ProductCard';
+import { calcFinalPrice } from '@/lib/utils';
 import Loader from '@/components/Loader';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useSEO } from '@/hooks/useSEO';
@@ -22,7 +23,7 @@ export default function Products() {
   // Price stats
   const priceStats = useMemo(() => {
     if (products.length === 0) return { min: 0, max: 5000 };
-    const prices = products.map((p) => p.price);
+    const prices = products.map((p) => calcFinalPrice(p.price, p.discount));
     return {
       min: Math.floor(Math.min(...prices)),
       max: Math.ceil(Math.max(...prices)),
@@ -72,7 +73,8 @@ export default function Products() {
     return products.filter((product) => {
       const matchesCategory = selectedCategory === 'all' || product.category === selectedCategory;
       const matchesGender = selectedGender === 'all' || product.gender?.toLowerCase() === selectedGender.toLowerCase();
-      const matchesPrice = product.price >= priceRange[0] && product.price <= priceRange[1];
+      const finalPrice = calcFinalPrice(product.price, product.discount);
+      const matchesPrice = finalPrice >= priceRange[0] && finalPrice <= priceRange[1];
       const matchesSearch = !search.trim() ||
         product.name?.toLowerCase().includes(search.toLowerCase()) ||
         product.category?.toLowerCase().includes(search.toLowerCase());

@@ -56,7 +56,6 @@ export default function AdminProducts() {
                 <th className="text-start px-6 py-4 text-sm font-semibold text-foreground">{t('admin.price')}</th>
                 <th className="text-start px-6 py-4 text-sm font-semibold text-foreground">{t('admin.discount')}</th>
                 <th className="text-start px-6 py-4 text-sm font-semibold text-foreground">{t('common.nfcCode')}</th>
-                <th className="text-start px-6 py-4 text-sm font-semibold text-foreground">{t('admin.audio')}</th>
                 <th className="text-center px-6 py-4 text-sm font-semibold text-foreground">{t('admin.actions')}</th>
               </tr>
             </thead>
@@ -86,13 +85,6 @@ export default function AdminProducts() {
                   </td>
                   <td className="px-6 py-4 text-sm font-mono text-muted-foreground">
                     {product.nfcCode || '—'}
-                  </td>
-                  <td className="px-6 py-4 text-center">
-                    {product.audioURL ? (
-                      <FaMusic className="text-primary inline-block" title={product.audioURL} />
-                    ) : (
-                      <span className="text-muted-foreground">—</span>
-                    )}
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex items-center justify-center gap-2">

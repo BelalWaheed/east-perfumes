@@ -94,12 +94,7 @@ export default function AdminProductDetails() {
               </div>
             )}
 
-            {product.audioURL && (
-              <div className="pt-4 border-t border-border space-y-2">
-                <p className="text-sm font-medium text-foreground">{t('admin.audio')}</p>
-                <audio controls src={product.audioURL} className="w-full h-10 rounded-xl" />
-              </div>
-            )}
+            
 
           </div>
         </div>

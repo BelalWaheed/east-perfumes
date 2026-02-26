@@ -20,7 +20,6 @@ export default function AddProduct() {
     gender: '',
     image: '',
     nfcCode: '',
-    audioURL: '',
   });
 
   const handleChange = (e) => setForm((p) => ({ ...p, [e.target.name]: e.target.value }));
@@ -73,7 +72,6 @@ export default function AddProduct() {
               <option value="">{t('admin.selectGenderPlaceholder')}</option>
               <option value="men">{t('filters.gender.men')}</option>
               <option value="women">{t('filters.gender.women')}</option>
-              <option value="kids">{t('filters.gender.kids')}</option>
             </select>
           </div>
         </div>
@@ -107,15 +105,6 @@ export default function AddProduct() {
           <label className="text-sm font-medium text-foreground mb-2 block">{t('admin.nfcCode')}</label>
           <input name="nfcCode" value={form.nfcCode} onChange={handleChange}
             className="w-full px-4 py-3 rounded-xl bg-secondary border border-border text-foreground focus:ring-2 focus:ring-primary/50 focus:outline-none font-mono" />
-        </div>
-
-        <div>
-          <label className="text-sm font-medium text-foreground mb-2 block">{t('admin.audioURL')}</label>
-          <input name="audioURL" value={form.audioURL} onChange={handleChange} placeholder="https://example.com/audio.mp3"
-            className="w-full px-4 py-3 rounded-xl bg-secondary border border-border text-foreground focus:ring-2 focus:ring-primary/50 focus:outline-none" />
-          {form.audioURL && (
-            <audio controls src={form.audioURL} className="mt-3 w-full h-10 rounded-xl" />
-          )}
         </div>
 
         <div className="flex gap-4 pt-4">
