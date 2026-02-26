@@ -1,90 +1,92 @@
 # 🕌 East Perfumes
 
-A premium, immersive e-commerce platform specializing in luxury oriental and western fragrances. This project is built with a focus on high-end aesthetics, accessibility, and unique user engagement features.
+A premium e-commerce platform for luxury oriental and western fragrances, built with React 19 and modern web technologies.
 
-## 🚀 Key Features
+## 🚀 Features
 
-### 💎 Immersive User Experience
+### User Experience
 
-- **Ambient Scent Descriptions**: Integrated custom audio engine utilizing the **Web Media Session API** for background playback control. Provides an immersive auditory layer to product exploration.
-- **Fluid UI/UX**: Built with **Tailwind CSS 4** and **Framer-style micro-animations**, delivering a "premium-first" visual experience.
-- **Responsive & Bi-directional**: Full support for **Arabic (RTL)** and **English (LTR)**, with a dynamic theme engine (Light/Dark mode).
+- **Bi-directional UI** — Full Arabic (RTL) & English (LTR) support with dynamic theme (Light/Dark)
+- **Ambient Audio** — Integrated audio engine with Web Media Session API for immersive product exploration
+- **Responsive Design** — Tailwind CSS 4 with premium micro-animations
 
-### 🎁 Advanced Loyalty Ecosystem
+### Loyalty System
 
-- **Points Redemption Engine**: A sophisticated loyalty system allowing users to earn points on purchases and redeem them via a dynamic pricing slider.
-- **Gamified Guest Experience**: Proactively promotes the points system to guest users to drive conversion and registration.
+- **Flat 50-point rewards** — Earn 50 points per product purchase/NFC verification
+- **Points Redemption** — Redeem points via a dynamic pricing slider at checkout
+- **Guest Promotion** — Drives conversion by showcasing the points system to guests
 
-### 🛡️ Product Integrity & Security
+### Product Security
 
-- **NFC Authentication Protocol**: Integrated product verification system. Users can verify the authenticity of their scents using unique NFC codes or serial numbers.
-- **Privacy-First Design**: NFC codes are masked from public view and strictly managed within the secure Admin Dashboard.
+- **NFC Authentication** — Verify product authenticity via unique NFC codes on physical packaging
+- **Rolling Codes** — NFC codes rotate after each verification for security
 
-### 🛍️ Unified Commerce
+### Commerce
 
-- **Omnichannel Checkout**: Seamless transition from digital browsing to personalized sales via **WhatsApp API** integration.
-- **Real-time Cart Management**: Persistence-ready cart handling with instant quantity updates and price recalculations.
+- **WhatsApp Checkout** — Seamless order flow via WhatsApp API integration
+- **Cart Management** — Persistent cart with quantity controls and price recalculation
 
-### ⚙️ Professional Admin Suite
+### Admin Dashboard
 
-- **Dashboard Analytics**: At-a-glance management of products and users.
-- **Resource Management**: Full CRUD operations for products (including NFC management) and user profiles with multi-role support (Admin/User).
-
----
-
-## 🛠️ Technical Stack
-
-- **Frontend**: React 19 (Functional Components, Hooks)
-- **State Management**: Redux Toolkit (Slices, Thunks, Persistence logic)
-- **Routing**: React Router DOM 7
-- **Styling**: Tailwind CSS 4 (Custom design tokens, HSL palettes)
-- **Internationalization**: Custom I18n implementation for high-performance localized lookup.
-- **API Integration**: RESTful architecture with centralized API wrapper and error handling.
-- **Build Tool**: Vite (Ultra-fast HMR and optimized production bundling)
+- **Product Management** — Full CRUD for products including NFC code and audio management
+- **User Management** — User CRUD with role-based access (Admin/User)
 
 ---
 
-## 📁 Project Architecture
+## 🛠️ Tech Stack
 
-```text
+| Layer    | Technology                           |
+| -------- | ------------------------------------ |
+| Frontend | React 19, Vite 7                     |
+| State    | Redux Toolkit (Slices + Thunks)      |
+| Routing  | React Router DOM 7                   |
+| Styling  | Tailwind CSS 4                       |
+| i18n     | Custom hook-based translation system |
+| API      | RESTful with centralized client      |
+| Hosting  | Vercel                               |
+
+---
+
+## 📁 Project Structure
+
+```
 src/
-├── components/     # Atomic UI components & layout wrappers
-├── i18n/           # Localization dictionaries (AR/EN)
-├── hooks/          # Custom hooks (Translation, SEO, Interactions)
-├── layouts/        # Page layout orchestration
-├── lib/            # Utilities, API clients, and core logic
-├── pages/          # Feature-based page components
-│   ├── admin/      # Secure dashboard views
-│   └── user/       # Public-facing storefront
-└── redux/          # Global state engine (Slices & Store)
+├── components/     # Reusable UI components
+├── context/        # React context providers (Audio)
+├── hooks/          # Custom hooks (Translation, SEO)
+├── i18n/           # Localization (ar.json, en.json)
+├── layouts/        # Page layout wrappers
+├── lib/            # Utilities & API client
+├── pages/
+│   ├── admin/      # Dashboard views
+│   └── user/       # Storefront pages
+└── redux/
+    └── slices/     # Redux state (profile, products, cart, etc.)
 ```
 
 ---
 
-## 🛠️ Development Setup
+## 🛠️ Setup
 
 ### Prerequisites
 
-- Node.js (LTS version recommended)
-- npm or yarn
+- Node.js (LTS)
+- npm
 
-### Installation
-
-1. Clone the repository
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-3. Create a `.env` file based on the environment requirements:
-   ```env
-   VITE_API_URL=your_api_endpoint
-   VITE_WHATSAPP_PHONE=your_business_phone
-   ```
-
-### Running Locally
+### Install & Run
 
 ```bash
+npm install
 npm run dev
+```
+
+### Environment Variables
+
+Create a `.env` file:
+
+```env
+VITE_API_URL=your_api_endpoint
+VITE_WHATSAPP_PHONE=your_business_phone
 ```
 
 ### Production Build
@@ -95,11 +97,9 @@ npm run build
 
 ---
 
-## 🛡️ Production Readiness
+## 🌐 Deployment
 
-- **SEO Optimized**: Dynamic meta tags and semantic HTML structure.
-- **Performance Focused**: Lazy loading, optimized assets, and efficient Redux state updates.
-- **Build Stability**: Continuous verification via automated Vite build processes.
+Hosted on **Vercel** with SPA rewrites configured in `vercel.json`. All client-side routes (including NFC deep links like `/verify/:nfcCode`) are handled correctly.
 
 ---
 
