@@ -103,6 +103,7 @@ export default function ProductDetails() {
       }));
       setPointsToUse(0);
     }
+    navigate('/verify');
   };
 
   const handleAddToCart = () => {
@@ -264,7 +265,7 @@ export default function ProductDetails() {
             <div className="flex gap-3">
               <button
                 onClick={handleOrder}
-                className="flex-1 flex items-center justify-center gap-3 py-4 rounded-xl bg-green-500 hover:bg-green-600 text-white text-lg font-semibold transition-all hover:shadow-lg hover:scale-[1.01]"
+                className="w-full flex items-center justify-center gap-3 py-4 rounded-xl bg-green-500 hover:bg-green-600 text-white text-lg font-semibold transition-all hover:shadow-lg hover:scale-[1.01]"
               >
                 <FaWhatsapp className="text-2xl" />
                 {t('common.orderViaWhatsApp')}
@@ -282,7 +283,7 @@ export default function ProductDetails() {
               >
                 {justAdded ? <FaCheck className="text-xl" /> : <FaCartPlus className="text-xl" />}
               </button>
-            </div>
+            </div>  
 
             {/* Authentic Status */}
             {product.nfcCode && (
