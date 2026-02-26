@@ -7,7 +7,8 @@ import { useSEO } from '@/hooks/useSEO';
 import { generateNfcCode } from '@/lib/utils';
 import { purchaseProduct } from '@/redux/slices/profileSlice';
 import { updateProduct } from '@/redux/slices/productSlice';
-import { setPlaylist } from '@/redux/slices/audioSlice';
+import { setPlaylist, setIsPlaying } from '@/redux/slices/audioSlice';
+import { userApi } from '@/lib/api';
 import AudioPlayer from '@/components/AudioPlayer';
 
 export default function NfcVerify() {
@@ -24,6 +25,14 @@ export default function NfcVerify() {
   const [code, setCode] = useState(paramCode || '');
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
+
+  // Stop audio and clear playlist when leaving this page
+  useEffect(() => {
+    return () => {
+      dispatch(setIsPlaying(false));
+      dispatch(setPlaylist([]));
+    };
+  }, [dispatch]);
 
   // Auto-verify if code came from URL
   useEffect(() => {
@@ -60,9 +69,20 @@ export default function NfcVerify() {
         const newNfc = generateNfcCode();
         dispatch(updateProduct({ id: found.id, data: { ...found, nfcCode: newNfc } }));
 
-        // Play product audio if available, else a default ambient track
-        const track = found.audioURL || 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3';
-        dispatch(setPlaylist(track));
+        // Play admin's audio playlist, fallback to product audioURL or default
+        userApi.getAll().then((users) => {
+          const admin = users.find((u) => u.role === 'admin');
+          const adminAudio = admin?.audioURL || [];
+          if (adminAudio.length > 0) {
+            dispatch(setPlaylist(adminAudio));
+          } else {
+            const track = found.audioURL || 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3';
+            dispatch(setPlaylist(track));
+          }
+        }).catch(() => {
+          const track = found.audioURL || 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3';
+          dispatch(setPlaylist(track));
+        });
       } else {
         setResult({ authentic: false });
       }

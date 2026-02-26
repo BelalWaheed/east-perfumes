@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { HiMenu, HiX, HiHome, HiShoppingBag, HiUsers, HiExternalLink } from 'react-icons/hi';
+import { FaMusic } from 'react-icons/fa';
 import { MdOutlineLightMode } from 'react-icons/md';
 import { CiDark } from 'react-icons/ci';
 import { HiLanguage } from 'react-icons/hi2';
@@ -92,7 +93,7 @@ export default function AdminNav() {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <button onClick={() => handleNavigate('/admin')} className="group">
-            <span className="font-bold text-lg text-foreground">East Perfumes</span>
+            <span className="font-bold text-lg text-foreground">TIVAQ Fragrance</span>
           </button>
 
           {/* Center Nav - Desktop */}
@@ -117,6 +118,13 @@ export default function AdminNav() {
             >
               <HiUsers className="text-lg" />
               {t('common.users')}
+            </button>
+            <button
+              onClick={() => handleNavigate('/admin/audio')}
+              className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 flex items-center gap-2 ${activeClass('/audio')}`}
+            >
+              <FaMusic className="text-sm" />
+              {t('admin.audio')}
             </button>
           </div>
 
@@ -198,6 +206,13 @@ export default function AdminNav() {
               >
                 <HiUsers className="text-xl" />
                 {t('common.users')}
+              </button>
+              <button
+                onClick={() => handleNavigate('/admin/audio')}
+                className="flex items-center gap-3 px-4 py-3 rounded-lg text-foreground hover:bg-secondary transition-colors font-medium text-start"
+              >
+                <FaMusic className="text-lg" />
+                {t('admin.audio')}
               </button>
 
               <div className="h-px bg-border my-2" />

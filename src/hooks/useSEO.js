@@ -1,9 +1,9 @@
-import { useEffect } from 'react';
-import { useSelector } from 'react-redux';
+import { useEffect } from "react";
+import { useSelector } from "react-redux";
 
 const BRAND = {
-  ar: 'إيست بيرفيومز | عطور الشرق',
-  en: 'East Perfumes | Luxury Fragrances',
+  ar: "TIVAQ Fragrance",
+  en: "TIVAQ Fragrance | Luxury Fragrances",
 };
 
 /**
@@ -16,7 +16,7 @@ export function useSEO({ title, description, keywords, image } = {}) {
   useEffect(() => {
     // Title
     if (title) {
-      document.title = `${title} | ${lang === 'ar' ? 'إيست بيرفيومز' : 'East Perfumes'}`;
+      document.title = `${title} | TIVAQ Fragrance`;
     } else {
       document.title = BRAND[lang] || BRAND.ar;
     }
@@ -25,30 +25,30 @@ export function useSEO({ title, description, keywords, image } = {}) {
       description,
       keywords,
       // Open Graph
-      'og:title': document.title,
-      'og:description': description,
-      'og:image': image,
-      'og:type': 'website',
+      "og:title": document.title,
+      "og:description": description,
+      "og:image": image,
+      "og:type": "website",
       // Twitter
-      'twitter:card': 'summary_large_image',
-      'twitter:title': document.title,
-      'twitter:description': description,
+      "twitter:card": "summary_large_image",
+      "twitter:title": document.title,
+      "twitter:description": description,
     };
 
     Object.entries(metaMap).forEach(([key, value]) => {
       if (!value) return;
 
-      const isOG = key.startsWith('og:') || key.startsWith('twitter:');
-      const attr  = isOG ? 'property' : 'name';
+      const isOG = key.startsWith("og:") || key.startsWith("twitter:");
+      const attr = isOG ? "property" : "name";
       let el = document.querySelector(`meta[${attr}="${key}"]`);
 
       if (!el) {
-        el = document.createElement('meta');
+        el = document.createElement("meta");
         el.setAttribute(attr, key);
         document.head.appendChild(el);
       }
 
-      el.setAttribute('content', value);
+      el.setAttribute("content", value);
     });
 
     return () => {

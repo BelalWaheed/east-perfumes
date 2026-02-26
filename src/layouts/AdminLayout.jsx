@@ -10,6 +10,7 @@ import EditProduct from '@/pages/admin/EditProduct';
 import UserManagement from '@/pages/admin/UserManagement';
 import AddUser from '@/pages/admin/AddUser';
 import EditUser from '@/pages/admin/EditUser';
+import AdminAudio from '@/pages/admin/AdminAudio';
 import NotFound from '@/pages/user/NotFound';
 
 export default function AdminLayout() {
@@ -27,6 +28,7 @@ export default function AdminLayout() {
           <Route path="users" element={<UserManagement />} />
           <Route path="users/add" element={<AddUser />} />
           <Route path="users/edit/:userId" element={<EditUser />} />
+          <Route path="audio" element={<AdminAudio />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </main>

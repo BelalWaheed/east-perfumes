@@ -30,7 +30,7 @@ export const generateWhatsAppLink = (product, finalPrice, pointsUsed = 0) => {
   const phone = import.meta.env.VITE_WHATSAPP_PHONE || '201000000000';
   const payable = finalPrice - pointsToEgp(pointsUsed);
   const lines = [
-    `🕌 *East Perfumes — New Order*`,
+    `🕌 *TIVAQ Fragrance — New Order*`,
     `━━━━━━━━━━━━━━━━━━━`,
     `📦 *Product:* ${product.name}`,
     `🏷️ *Category:* ${product.category}`,

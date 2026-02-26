@@ -64,9 +64,10 @@
     "authentic": "Authentic",
     "notAuthentic": "Not Authentic",
     "currency": "EGP",
-    "brandName": "East Perfumes",
+    "brandName": "TIVAQ Fragrance",
     "earnPointsGuest": "Log in to earn {points} points with this purchase! 🎁",
-    "saveWithPointsGuest": "Join us now to start earning points and get exclusive discounts on future orders! 🌟"
+    "saveWithPointsGuest": "Join us now to start earning points and get exclusive discounts on future orders! 🌟",
+    "add": "Add"
   },
   "filters": {
     "category": "Category",
@@ -144,7 +145,7 @@
     "qty": "Qty",
     "unit": "Unit",
     "line": "Line",
-    "whatsappTitle": "🕌 *East Perfumes — New Order*",
+    "whatsappTitle": "🕌 *TIVAQ Fragrance — New Order*",
     "whatsappConfirm": "Please confirm my order. Thank you! 🌹",
     "whatsappSubtotal": "💰 *Subtotal:*",
     "whatsappPoints": "🎁 *Points Redeemed:*",
@@ -233,7 +234,7 @@
     "verifying": "Verifying...",
     "productAuthentic": "Product is Authentic ✓",
     "productNotFound": "Product Not Found",
-    "authenticDesc": "This product is authentic and certified by East Perfumes.",
+    "authenticDesc": "This product is authentic and certified by TIVAQ Fragrance.",
     "invalidDesc": "No product found with this code. Please check and try again.",
     "alreadyVerified": "This product was previously verified and its code is now inactive."
   },
@@ -244,7 +245,7 @@
     "helpDesc": "Check our FAQ, shipping info, and policies.",
     "verifyTitle": "Verify Product",
     "verifySubtitle": "Verify Product Authenticity & Earn Points",
-    "verifyDescription": "Ensure your luxury fragrance is an authentic East Perfumes creation and claim your loyalty rewards. Every verification awards you points for future discounts!",
+    "verifyDescription": "Ensure your luxury fragrance is an authentic TIVAQ Fragrance creation and claim your loyalty rewards. Every verification awards you points for future discounts!",
     "faqTitle": "Frequently Asked Questions",
     "faq1Q": "How do I track my order?",
     "faq1A": "Once your order ships, you'll receive a WhatsApp message with shipping details.",
@@ -272,7 +273,7 @@
     "terms2Title": "2. Orders and Payments",
     "terms2Text": "All orders are subject to availability. Prices are subject to change.",
     "terms3Title": "3. Intellectual Property",
-    "terms3Text": "All content on this website is the property of East Perfumes and protected by copyright laws.",
+    "terms3Text": "All content on this website is the property of TIVAQ Fragrance and protected by copyright laws.",
     "privacyTitle": "Privacy Policy",
     "privacyIntro": "Your privacy is important to us.",
     "privacy1Title": "Information We Collect",
@@ -351,7 +352,17 @@
     "roleUser": "User",
     "roleAdmin": "Admin",
     "leaveBlankPassword": "Leave blank to keep unchanged",
-    "categories": "Categories"
+    "categories": "Categories",
+    "manageAudio": "Manage Audio",
+    "manageAudioDesc": "Add, preview, and manage audio tracks that play on product verification.",
+    "addAudioURL": "Add Audio URL",
+    "audioTracks": "Audio Tracks",
+    "noAudioTracks": "No audio tracks yet. Add your first track above.",
+    "audioAdded": "Audio track added successfully!",
+    "audioRemoved": "Audio track removed.",
+    "audioRemoveConfirm": "This audio track will be removed.",
+    "audioDuplicate": "This audio URL already exists.",
+    "selectGenderPlaceholder": "Select gender"
   },
   "verify": {
     "title": "Verify Your Purchase",
@@ -377,7 +388,7 @@
     "scanTag": "Scan the tag",
     "scanTagDesc": "Use your phone to scan the NFC tag or QR code on the packaging.",
     "exclusiveAccess": "Exclusive Access",
-    "exclusiveAccessDesc": "Verification is only available via the physical security tag on your East Perfumes bottle."
+    "exclusiveAccessDesc": "Verification is only available via the physical security tag on your TIVAQ Fragrance bottle."
   },
   "productData": {
     "amber-night": {

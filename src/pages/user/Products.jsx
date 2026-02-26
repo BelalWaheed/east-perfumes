@@ -15,7 +15,7 @@ export default function Products() {
   useSEO({
     title: t('common.ourProducts'),
     description: t('home.featuredDesc'),
-    keywords: 'perfumes, عطور, shop, تسوق, east perfumes',
+    keywords: 'perfumes, عطور, shop, تسوق, TIVAQ Fragrance',
   });
   const [searchParams] = useSearchParams();
 

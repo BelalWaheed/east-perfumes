@@ -1,4 +1,4 @@
-# 🕌 East Perfumes
+# ✨ TIVAQ Fragrance
 
 A premium e-commerce platform for luxury oriental and western fragrances, built with React 19 and modern web technologies.
 
@@ -7,7 +7,6 @@ A premium e-commerce platform for luxury oriental and western fragrances, built 
 ### User Experience
 
 - **Bi-directional UI** — Full Arabic (RTL, default) & English (LTR) support with dynamic theme (Light/Dark)
-- **Ambient Audio** — Integrated audio engine with Web Media Session API for immersive product exploration
 - **Responsive Design** — Tailwind CSS 4 with premium micro-animations
 - **SEO** — Dynamic per-page meta tags, OG, and Twitter cards in both languages
 
@@ -21,6 +20,7 @@ A premium e-commerce platform for luxury oriental and western fragrances, built 
 
 - **NFC Authentication** — Verify product authenticity via unique NFC codes on physical packaging
 - **Rolling Codes** — NFC codes rotate after each verification for security
+- **Verification Audio** — Admin-managed audio playlist plays during product verification
 
 ### Commerce
 
@@ -29,8 +29,9 @@ A premium e-commerce platform for luxury oriental and western fragrances, built 
 
 ### Admin Dashboard
 
-- **Product Management** — Full CRUD for products including NFC code and audio management
+- **Product Management** — Full CRUD for products including NFC code and audio URL
 - **User Management** — User CRUD with role-based access (Admin/User)
+- **Audio Management** — Dedicated page to add, reorder, preview, and delete audio tracks that play on NFC verification
 
 ---
 
@@ -51,17 +52,18 @@ A premium e-commerce platform for luxury oriental and western fragrances, built 
 
 ```
 src/
-├── components/     # Reusable UI components
+├── assets/         # Static assets (logo, images)
+├── components/     # Reusable UI components (Navbar, Footer, AudioPlayer)
 ├── context/        # React context providers (Audio)
 ├── hooks/          # Custom hooks (Translation, SEO)
 ├── i18n/           # Localization (ar.json, en.json)
-├── layouts/        # Page layout wrappers
+├── layouts/        # Page layout wrappers (Admin, User)
 ├── lib/            # Utilities & API client
 ├── pages/
-│   ├── admin/      # Dashboard views
-│   └── user/       # Storefront pages
+│   ├── admin/      # Dashboard, Products, Users, Audio management
+│   └── user/       # Home, Products, Cart, NFC Verify, Profile
 └── redux/
-    └── slices/     # Redux state (profile, products, cart, etc.)
+    └── slices/     # Redux state (profile, products, cart, audio, etc.)
 ```
 
 ---
@@ -138,4 +140,4 @@ Since this is a **static SPA** (Single Page Application), you need to:
 
 ---
 
-© 2026 East Perfumes. Crafted for excellence by [Belal Waheed](https://belalwaheed.vercel.app)
+© 2026 TIVAQ Fragrance. Crafted for excellence by [Belal Waheed](https://belalwaheed.vercel.app)

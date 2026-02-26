@@ -1,13 +1,14 @@
 import { createContext, useContext, useRef, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { setIsPlaying } from '@/redux/slices/audioSlice';
+import { setIsPlaying, nextTrack } from '@/redux/slices/audioSlice';
 
 const AudioContext = createContext(null);
 
 export function AudioProvider({ children }) {
   const audioRef = useRef(new Audio());
   const dispatch = useDispatch();
-  const { audioUrl, isPlaying } = useSelector((s) => s.audio);
+  const { playlist, currentIndex, isPlaying } = useSelector((s) => s.audio);
+  const audioUrl = playlist[currentIndex] || null;
 
   // When audioUrl changes, swap the source
   useEffect(() => {
@@ -18,6 +19,10 @@ export function AudioProvider({ children }) {
       if (isPlaying) {
         audio.play().catch(() => dispatch(setIsPlaying(false)));
       }
+    } else {
+      // No track — stop and clear
+      audio.pause();
+      audio.src = '';
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [audioUrl]);
@@ -25,7 +30,10 @@ export function AudioProvider({ children }) {
   // When isPlaying changes, play or pause
   useEffect(() => {
     const audio = audioRef.current;
-    if (!audioUrl) return;
+    if (!audioUrl) {
+      audio.pause();
+      return;
+    }
     if (isPlaying) {
       audio.play().catch(() => dispatch(setIsPlaying(false)));
     } else {
@@ -33,13 +41,19 @@ export function AudioProvider({ children }) {
     }
   }, [isPlaying, audioUrl, dispatch]);
 
-  // Sync ended event
+  // Sync ended event — advance to next track or stop
   useEffect(() => {
     const audio = audioRef.current;
-    const handleEnded = () => dispatch(setIsPlaying(false));
+    const handleEnded = () => {
+      if (playlist.length > 1) {
+        dispatch(nextTrack());
+      } else {
+        dispatch(setIsPlaying(false));
+      }
+    };
     audio.addEventListener('ended', handleEnded);
     return () => audio.removeEventListener('ended', handleEnded);
-  }, [dispatch]);
+  }, [dispatch, playlist.length]);
 
   return (
     <AudioContext.Provider value={audioRef}>

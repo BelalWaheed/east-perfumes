@@ -12,7 +12,7 @@ export default function Home() {
   useSEO({
     title: t('home.discover') + ' ' + t('home.latestFashion'),
     description: t('home.heroDescription'),
-    keywords: 'perfumes, عطور, east perfumes, oud, بخور, عود, luxury fragrances',
+    keywords: 'perfumes, عطور, TIVAQ Fragrance, oud, بخور, عود, luxury fragrances',
   });
 
   const featuredProducts = products.slice(0, 4);

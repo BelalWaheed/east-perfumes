@@ -1,6 +1,7 @@
 import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { HiShoppingBag, HiUsers, HiPlusCircle, HiTrendingUp } from 'react-icons/hi';
+import { FaMusic } from 'react-icons/fa';
 import { useTranslation } from '@/hooks/useTranslation';
 
 export default function AdminDashboard() {
@@ -71,6 +72,7 @@ export default function AdminDashboard() {
             { to: '/admin/products', label: t('admin.viewProducts'), icon: HiShoppingBag, color: 'bg-blue-500/10 text-blue-500' },
             { to: '/admin/users/add', label: t('admin.addUser'), icon: HiPlusCircle, color: 'bg-green-500/10 text-green-500' },
             { to: '/admin/users', label: t('admin.viewUsers'), icon: HiUsers, color: 'bg-orange-500/10 text-orange-500' },
+            { to: '/admin/audio', label: t('admin.manageAudio'), icon: FaMusic, color: 'bg-purple-500/10 text-purple-500' },
           ].map((action, i) => (
             <Link
               key={i}
