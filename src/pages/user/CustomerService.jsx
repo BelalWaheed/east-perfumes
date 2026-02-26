@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { HiChevronDown, HiChevronRight, HiChevronUp } from 'react-icons/hi';
 import { FaTruck, FaUndo, FaQuestionCircle, FaFileContract, FaShieldAlt } from 'react-icons/fa';
 import { useTranslation } from '@/hooks/useTranslation';
+import { useSEO } from '@/hooks/useSEO';
 import { Link } from 'react-router-dom';
 
 function Accordion({ question, answer, open, onClick }) {
@@ -25,6 +26,11 @@ function Accordion({ question, answer, open, onClick }) {
 
 export default function CustomerService() {
   const { t } = useTranslation();
+
+  useSEO({
+    title: t('customerService.title'),
+    description: t('customerService.subtitle'),
+  });
   const [openFaq, setOpenFaq] = useState(null);
 
   const faqs = [

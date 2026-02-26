@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import { setLoggedUser, setLogged } from '@/redux/slices/profileSlice';
+import { setLoggedUser, setLogged, updateProfile } from '@/redux/slices/profileSlice';
 import { useTranslation } from '@/hooks/useTranslation';
+import { useSEO } from '@/hooks/useSEO';
 import Swal from 'sweetalert2';
 
 export default function Login() {
@@ -10,6 +11,8 @@ export default function Login() {
   const navigate = useNavigate();
   const { allUsers } = useSelector((s) => s.user);
   const { t } = useTranslation();
+
+  useSEO({ title: t('common.login') });
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
@@ -35,6 +38,24 @@ export default function Login() {
     localStorage.setItem('ep-userId', found.id);
     dispatch(setLoggedUser(found));
     dispatch(setLogged(true));
+
+    // Apply pending guest NFC verification points
+    const pending = localStorage.getItem('ep-pendingVerification');
+    if (pending) {
+      try {
+        const { productId, points } = JSON.parse(pending);
+        dispatch(updateProfile({
+          id: found.id,
+          data: {
+            purchasedProducts: [...(found.purchasedProducts || []), productId],
+            totalPoints: (found.totalPoints || 0) + points,
+            availablePoints: (found.availablePoints || 0) + points,
+          },
+        }));
+      } catch { /* ignore malformed data */ }
+      localStorage.removeItem('ep-pendingVerification');
+    }
+
     navigate('/');
   };
 

@@ -1,31 +1,39 @@
 import { useEffect } from 'react';
+import { useSelector } from 'react-redux';
+
+const BRAND = {
+  ar: 'إيست بيرفيومز | عطور الشرق',
+  en: 'East Perfumes | Luxury Fragrances',
+};
 
 /**
- * Lightweight SEO hook — uses native React 19 document metadata.
- * Sets document.title and injects/updates meta tags without any library.
+ * Lightweight SEO hook — sets document.title and injects/updates meta tags.
+ * Accepts both `title` (string) and `titleAr`/`titleEn` for bilingual support.
  */
 export function useSEO({ title, description, keywords, image } = {}) {
+  const lang = useSelector((s) => s.language.language);
+
   useEffect(() => {
     // Title
     if (title) {
-      document.title = `${title} | East Perfumes`;
+      document.title = `${title} | ${lang === 'ar' ? 'إيست بيرفيومز' : 'East Perfumes'}`;
+    } else {
+      document.title = BRAND[lang] || BRAND.ar;
     }
 
     const metaMap = {
       description,
       keywords,
       // Open Graph
-      'og:title': title ? `${title} | East Perfumes` : undefined,
+      'og:title': document.title,
       'og:description': description,
       'og:image': image,
       'og:type': 'website',
       // Twitter
       'twitter:card': 'summary_large_image',
-      'twitter:title': title ? `${title} | East Perfumes` : undefined,
+      'twitter:title': document.title,
       'twitter:description': description,
     };
-
-    const applied = [];
 
     Object.entries(metaMap).forEach(([key, value]) => {
       if (!value) return;
@@ -38,15 +46,13 @@ export function useSEO({ title, description, keywords, image } = {}) {
         el = document.createElement('meta');
         el.setAttribute(attr, key);
         document.head.appendChild(el);
-        applied.push(el);
       }
 
       el.setAttribute('content', value);
     });
 
     return () => {
-      // Reset title on unmount
-      document.title = 'East Perfumes | Luxury Fragrances';
+      document.title = BRAND[lang] || BRAND.ar;
     };
-  }, [title, description, keywords, image]);
+  }, [title, description, keywords, image, lang]);
 }

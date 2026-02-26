@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { HiShieldCheck, HiExclamationCircle, HiGift } from 'react-icons/hi';
 import { useTranslation } from '@/hooks/useTranslation';
+import { useSEO } from '@/hooks/useSEO';
 import { generateNfcCode } from '@/lib/utils';
 import { purchaseProduct } from '@/redux/slices/profileSlice';
 import { updateProduct } from '@/redux/slices/productSlice';
@@ -15,6 +16,11 @@ export default function NfcVerify() {
   const { products } = useSelector((s) => s.products);
   const { loggedUser, logged } = useSelector((s) => s.profile);
   const { t } = useTranslation();
+
+  useSEO({
+    title: t('verify.title'),
+    description: t('verify.subtitle'),
+  });
   const [code, setCode] = useState(paramCode || '');
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -31,7 +37,7 @@ export default function NfcVerify() {
       const found = products.find((p) => p.nfcCode === c);
       if (found) {
         setResult({ authentic: true, product: found });
-        // Award points if logged in and code not already used (rolling system rotates code, so if it's found, it's valid)
+        // Award points if logged in
         if (logged && loggedUser) {
           dispatch(
             purchaseProduct({
@@ -42,10 +48,17 @@ export default function NfcVerify() {
               fixedPoints: 50,
             })
           );
-          // Rotate NFC to a new random one
-          const newNfc = generateNfcCode();
-          dispatch(updateProduct({ id: found.id, data: { ...found, nfcCode: newNfc } }));
+        } else {
+          // Guest: save pending verification to localStorage
+          localStorage.setItem('ep-pendingVerification', JSON.stringify({
+            productId: found.id,
+            points: 50,
+          }));
         }
+
+        // Rotate NFC to a new random one (always, to prevent reuse)
+        const newNfc = generateNfcCode();
+        dispatch(updateProduct({ id: found.id, data: { ...found, nfcCode: newNfc } }));
 
         // Play product audio if available, else a default ambient track
         const track = found.audioURL || 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3';

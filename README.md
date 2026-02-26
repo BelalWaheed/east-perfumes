@@ -6,15 +6,16 @@ A premium e-commerce platform for luxury oriental and western fragrances, built 
 
 ### User Experience
 
-- **Bi-directional UI** — Full Arabic (RTL) & English (LTR) support with dynamic theme (Light/Dark)
+- **Bi-directional UI** — Full Arabic (RTL, default) & English (LTR) support with dynamic theme (Light/Dark)
 - **Ambient Audio** — Integrated audio engine with Web Media Session API for immersive product exploration
 - **Responsive Design** — Tailwind CSS 4 with premium micro-animations
+- **SEO** — Dynamic per-page meta tags, OG, and Twitter cards in both languages
 
 ### Loyalty System
 
-- **Flat 50-point rewards** — Earn 50 points per product purchase/NFC verification
+- **Flat 50-point rewards** — Earn 50 points per NFC verification
 - **Points Redemption** — Redeem points via a dynamic pricing slider at checkout
-- **Guest Promotion** — Drives conversion by showcasing the points system to guests
+- **Guest Verification** — Guests can verify products; points are saved and applied after login/signup
 
 ### Product Security
 
@@ -43,7 +44,6 @@ A premium e-commerce platform for luxury oriental and western fragrances, built 
 | Styling  | Tailwind CSS 4                       |
 | i18n     | Custom hook-based translation system |
 | API      | RESTful with centralized client      |
-| Hosting  | Vercel                               |
 
 ---
 
@@ -95,11 +95,50 @@ VITE_WHATSAPP_PHONE=your_business_phone
 npm run build
 ```
 
+This generates a static `dist/` folder with all your files.
+
 ---
 
 ## 🌐 Deployment
 
-Hosted on **Vercel** with SPA rewrites configured in `vercel.json`. All client-side routes (including NFC deep links like `/verify/:nfcCode`) are handled correctly.
+### Hostinger
+
+Since this is a **static SPA** (Single Page Application), you need to:
+
+1. **Build the project**:
+
+   ```bash
+   npm run build
+   ```
+
+2. **Upload the `dist/` folder** to Hostinger:
+   - Go to **Hostinger hPanel** → **File Manager**
+   - Navigate to **`public_html`**
+   - Delete any default files (index.html, etc.)
+   - Upload **all contents** of the `dist/` folder into `public_html`
+
+3. **Add `.htaccess` for SPA routing** — Create a `.htaccess` file inside `public_html` with:
+
+   ```apache
+   <IfModule mod_rewrite.c>
+     RewriteEngine On
+     RewriteBase /
+     RewriteRule ^index\.html$ - [L]
+     RewriteCond %{REQUEST_FILENAME} !-f
+     RewriteCond %{REQUEST_FILENAME} !-d
+     RewriteRule . /index.html [L]
+   </IfModule>
+   ```
+
+   > This is **critical** — without it, direct links like `/verify/NFC-xxx` or `/products/123` will show 404 errors because the server won't know to serve `index.html` for all routes.
+
+4. **Set your domain** — Point your domain to the Hostinger hosting in the Domains section if not already done.
+
+5. **Enable SSL** — Activate the free SSL certificate from hPanel → **SSL** section.
+
+### Vercel (Current)
+
+Already configured via `vercel.json` with SPA rewrites. Just push to GitHub and it auto-deploys.
 
 ---
 

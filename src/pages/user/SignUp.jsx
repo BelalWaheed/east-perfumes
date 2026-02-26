@@ -4,6 +4,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { addNewUser } from "@/redux/slices/userSlice";
 import { setLoggedUser, setLogged } from "@/redux/slices/profileSlice";
 import { useTranslation } from "@/hooks/useTranslation";
+import { useSEO } from "@/hooks/useSEO";
 import Swal from "sweetalert2";
 
 export default function SignUp() {
@@ -11,6 +12,8 @@ export default function SignUp() {
   const navigate = useNavigate();
   const { allUsers } = useSelector((s) => s.user);
   const { t } = useTranslation();
+
+  useSEO({ title: t('common.signUp') });
 
   const [form, setForm] = useState({
     name: "",
@@ -44,20 +47,33 @@ export default function SignUp() {
       });
 
     try {
+      // Check for pending guest NFC verification
+      let pendingPoints = 0;
+      let pendingProductId = null;
+      const pending = localStorage.getItem('ep-pendingVerification');
+      if (pending) {
+        try {
+          const parsed = JSON.parse(pending);
+          pendingPoints = parsed.points || 0;
+          pendingProductId = parsed.productId;
+        } catch { /* ignore */ }
+      }
+
       const newUser = {
         name: form.name,
         email: form.email,
         password: form.password,
         gender: form.gender,
         role: "user",
-        totalPoints: 0,
+        totalPoints: pendingPoints,
         usedPoints: 0,
-        availablePoints: 0,
-        purchasedProducts: [],
+        availablePoints: pendingPoints,
+        purchasedProducts: pendingProductId ? [pendingProductId] : [],
       };
 
       const result = await dispatch(addNewUser(newUser)).unwrap();
       localStorage.setItem("ep-userId", result.id);
+      if (pending) localStorage.removeItem('ep-pendingVerification');
       dispatch(setLoggedUser(result));
       dispatch(setLogged(true));
       navigate("/");

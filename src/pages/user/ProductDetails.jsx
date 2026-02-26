@@ -4,9 +4,11 @@ import { useSelector, useDispatch } from 'react-redux';
 import { FaWhatsapp, FaChevronLeft, FaChevronRight, FaCartPlus, FaCheck } from 'react-icons/fa';
 import { HiShieldCheck } from 'react-icons/hi';
 import { addToCart } from '@/redux/slices/cartSlice';
+import { updateProfile } from '@/redux/slices/profileSlice';
 import ProductCard from '@/components/ProductCard';
 import Loader from '@/components/Loader';
 import { useTranslation } from '@/hooks/useTranslation';
+import { useSEO } from '@/hooks/useSEO';
 import {
   formatCurrency,
   calcFinalPrice,
@@ -22,6 +24,7 @@ export default function ProductDetails() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { t, isRTL } = useTranslation();
+
   const [pointsToUse, setPointsToUse] = useState(0);
   const [isZoomed, setIsZoomed] = useState(false);
   const [justAdded, setJustAdded] = useState(false);
@@ -34,6 +37,12 @@ export default function ProductDetails() {
     () => products.find((p) => String(p.id) === String(productId)),
     [products, productId]
   );
+
+  useSEO({
+    title: product?.name || t('common.products'),
+    description: product?.description || t('home.featuredDesc'),
+    image: product?.image,
+  });
 
   // Reset points slider when product changes
   useEffect(() => {
@@ -82,6 +91,18 @@ export default function ProductDetails() {
   const handleOrder = () => {
     // Open WhatsApp
     window.open(generateWhatsAppLink(product, finalPrice, pointsToUse), '_blank');
+
+    // Deduct redeemed points from user profile
+    if (logged && loggedUser && pointsToUse > 0) {
+      dispatch(updateProfile({
+        id: loggedUser.id,
+        data: {
+          usedPoints: (loggedUser.usedPoints || 0) + pointsToUse,
+          availablePoints: Math.max(0, (loggedUser.availablePoints || 0) - pointsToUse),
+        },
+      }));
+      setPointsToUse(0);
+    }
   };
 
   const handleAddToCart = () => {
@@ -115,7 +136,7 @@ export default function ProductDetails() {
             >
               {/* Category Badge */}
               <span className="absolute top-4 inset-s-4 z-10 px-4 py-1.5 text-sm font-medium rounded-full bg-primary/90 text-primary-foreground capitalize backdrop-blur-sm">
-                {t(`categories.${product.category}`, product.category)}
+                {t(`categories.${product.gender}`, product.gender)}
               </span>
 
               {/* Discount Badge */}

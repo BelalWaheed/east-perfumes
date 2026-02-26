@@ -4,7 +4,9 @@ import { useSelector, useDispatch } from 'react-redux';
 import { FaWhatsapp, FaTrash, FaPlus, FaMinus } from 'react-icons/fa';
 import { HiShoppingCart, HiArrowLeft } from 'react-icons/hi';
 import { removeFromCart, updateQuantity, clearCart, selectCartTotal } from '@/redux/slices/cartSlice';
+import { updateProfile } from '@/redux/slices/profileSlice';
 import { useTranslation } from '@/hooks/useTranslation';
+import { useSEO } from '@/hooks/useSEO';
 import {
   formatCurrency,
   calcFinalPrice,
@@ -20,6 +22,8 @@ export default function Cart() {
   const cartTotal = useSelector(selectCartTotal);
   const { t, isRTL } = useTranslation();
   const [pointsToUse, setPointsToUse] = useState(0);
+
+  useSEO({ title: t('cart.title') });
 
   // Points calculations
   const availablePoints = loggedUser?.availablePoints || 0;
@@ -53,6 +57,17 @@ export default function Cart() {
 
     // Open WhatsApp
     window.open(`https://wa.me/${phone}?text=${encodeURIComponent(lines)}`, '_blank');
+
+    // Deduct redeemed points from user profile
+    if (logged && loggedUser && pointsToUse > 0) {
+      dispatch(updateProfile({
+        id: loggedUser.id,
+        data: {
+          usedPoints: (loggedUser.usedPoints || 0) + pointsToUse,
+          availablePoints: Math.max(0, (loggedUser.availablePoints || 0) - pointsToUse),
+        },
+      }));
+    }
 
     dispatch(clearCart());
     navigate('/verify');

@@ -3,10 +3,17 @@ import { FaArrowRight, FaStar, FaTruck, FaShieldAlt, FaHeadset } from 'react-ico
 import { useSelector } from 'react-redux';
 import ProductCard from '@/components/ProductCard';
 import { useTranslation } from '@/hooks/useTranslation';
+import { useSEO } from '@/hooks/useSEO';
 
 export default function Home() {
   const { products } = useSelector((s) => s.products);
   const { t, isRTL } = useTranslation();
+
+  useSEO({
+    title: t('home.discover') + ' ' + t('home.latestFashion'),
+    description: t('home.heroDescription'),
+    keywords: 'perfumes, عطور, east perfumes, oud, بخور, عود, luxury fragrances',
+  });
 
   const featuredProducts = products.slice(0, 4);
   const categories = [...new Set(products.map((p) => p.category))].slice(0, 4);

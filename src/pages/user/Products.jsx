@@ -6,10 +6,17 @@ import { FaFilter } from 'react-icons/fa';
 import ProductCard from '@/components/ProductCard';
 import Loader from '@/components/Loader';
 import { useTranslation } from '@/hooks/useTranslation';
+import { useSEO } from '@/hooks/useSEO';
 
 export default function Products() {
   const { products, loading } = useSelector((s) => s.products);
   const { t } = useTranslation();
+
+  useSEO({
+    title: t('common.ourProducts'),
+    description: t('home.featuredDesc'),
+    keywords: 'perfumes, عطور, shop, تسوق, east perfumes',
+  });
   const [searchParams] = useSearchParams();
 
   // Price stats
@@ -135,7 +142,7 @@ export default function Products() {
 
             {/* Segmented Gender Control */}
             <div className="flex p-1 bg-secondary rounded-xl w-full md:w-auto">
-              {['all', 'male', 'female'].map((gender) => (
+              {['all', 'men', 'women'].map((gender) => (
                 <button
                   key={gender}
                   onClick={() => setSelectedGender(gender)}

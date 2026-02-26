@@ -75,9 +75,12 @@ export default function ProductCard({ product }) {
             {justAdded ? <FaCheck className="text-sm" /> : <FaCartPlus className="text-sm" />}
           </button>
 
-          {/* Category Badge */}
-          <span className="absolute top-3 inset-s-3 px-3 py-1 text-xs font-medium rounded-full bg-primary/90 text-primary-foreground capitalize backdrop-blur-sm">
-            {t(`categories.${product.category}`, product.category)}
+          <span className={`absolute top-3 inset-s-3 px-3 py-1 text-xs font-medium rounded-full capitalize backdrop-blur-sm ${
+            product.gender === 'women'
+              ? 'bg-pink-500/90 text-white'
+              : 'bg-primary/90 text-primary-foreground'
+          }`}>
+            {t(`categories.${product.gender}`, product.gender)}
           </span>
 
           {/* Discount Badge */}

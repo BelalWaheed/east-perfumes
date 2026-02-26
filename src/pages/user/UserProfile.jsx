@@ -4,6 +4,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { HiUser, HiMail, HiStar, HiShoppingBag } from 'react-icons/hi';
 import { updateProfile } from '@/redux/slices/profileSlice';
 import { useTranslation } from '@/hooks/useTranslation';
+import { useSEO } from '@/hooks/useSEO';
 import Swal from 'sweetalert2';
 
 export default function UserProfile() {
@@ -11,6 +12,8 @@ export default function UserProfile() {
   const { products } = useSelector((s) => s.products);
   const dispatch = useDispatch();
   const { t } = useTranslation();
+
+  useSEO({ title: t('profile.title') });
 
   const [editing, setEditing] = useState(false);
   const [form, setForm] = useState({

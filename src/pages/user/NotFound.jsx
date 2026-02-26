@@ -1,8 +1,11 @@
 import { Link } from 'react-router-dom';
 import { useTranslation } from '@/hooks/useTranslation';
+import { useSEO } from '@/hooks/useSEO';
 
 export default function NotFound() {
   const { t, isRTL } = useTranslation();
+
+  useSEO({ title: t('notFound.title') });
 
   return (
     <div className="min-h-[calc(100vh-200px)] flex items-center justify-center px-4">
