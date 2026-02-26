@@ -136,10 +136,6 @@ Since this is a **static SPA** (Single Page Application), you need to:
 
 5. **Enable SSL** — Activate the free SSL certificate from hPanel → **SSL** section.
 
-### Vercel (Current)
-
-Already configured via `vercel.json` with SPA rewrites. Just push to GitHub and it auto-deploys.
-
 ---
 
-© 2026 East Perfumes. Crafted for excellence.
+© 2026 East Perfumes. Crafted for excellence by [Belal Waheed](https://belalwaheed.vercel.app)
