@@ -10,7 +10,6 @@ import { useTranslation } from '@/hooks/useTranslation';
 import {
   formatCurrency,
   calcFinalPrice,
-  calcPointsEarned,
   maxRedeemablePoints,
   pointsToEgp,
   generateWhatsAppLink,
@@ -78,7 +77,7 @@ export default function ProductDetails() {
   const maxPoints = maxRedeemablePoints(finalPrice, availablePoints);
   const pointsDiscount = pointsToEgp(pointsToUse);
   const payablePrice = finalPrice - pointsDiscount;
-  const earnablePoints = calcPointsEarned(payablePrice);
+  const earnablePoints = 50;
 
   const handleOrder = () => {
     // Open WhatsApp

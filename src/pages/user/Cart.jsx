@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { FaWhatsapp, FaTrash, FaPlus, FaMinus } from 'react-icons/fa';
@@ -54,18 +54,8 @@ export default function Cart() {
     // Open WhatsApp
     window.open(`https://wa.me/${phone}?text=${encodeURIComponent(lines)}`, '_blank');
 
-    // Navigate to purchase verification
-    navigate('/verify-purchase', {
-      state: {
-        isCartOrder: true,
-        cartItems: items.map((i) => ({ id: i.id, name: i.name })),
-        finalPrice: payableTotal,
-        pointsUsed: pointsToUse,
-        productName: `${items.length} items`,
-      },
-    });
-
     dispatch(clearCart());
+    navigate('/verify');
     setPointsToUse(0);
   };
 

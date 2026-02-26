@@ -80,17 +80,17 @@ export default function NfcVerify() {
               <li>{t('verify.step1')}</li>
               <li>{t('verify.step2')}</li>
               <li>
-                <span className="font-semibold text-foreground">Scan the tag:</span> 
-                {" "}Use your phone to scan the NFC tag or QR code on the packaging.
+                <span className="font-semibold text-foreground">{t('verify.scanTag')}:</span> 
+                {" "}{t('verify.scanTagDesc')}
               </li>
               <li>{t('verify.step3')}</li>
             </ol>
           </div>
           
           <div className="mt-8 pt-6 border-t border-border">
-            <p className="text-xs text-muted-foreground uppercase tracking-widest font-bold mb-2">Exclusive Access</p>
+            <p className="text-xs text-muted-foreground uppercase tracking-widest font-bold mb-2">{t('verify.exclusiveAccess')}</p>
             <p className="text-sm text-foreground/70">
-              Verification is only available via the physical security tag on your East Perfumes bottle.
+              {t('verify.exclusiveAccessDesc')}
             </p>
           </div>
         </div>

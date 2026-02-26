@@ -7,11 +7,6 @@ export const calcFinalPrice = (price, discount) => {
   return Number(price) - (Number(price) * Number(discount)) / 100;
 };
 
-/**
- * Points earned on purchase.
- * 1 EGP = 1 Point
- */
-export const calcPointsEarned = (finalPrice) => Math.floor(finalPrice);
 
 /**
  * Discount value from points.
@@ -55,17 +50,9 @@ export const generateWhatsAppLink = (product, finalPrice, pointsUsed = 0) => {
 /**
  * Format a number as Egyptian currency.
  */
-export const formatEGP = (amount) =>
+export const formatCurrency = (amount) =>
   `${Number(amount).toFixed(2)} EGP`;
 
-/** Alias for formatEGP */
-export const formatCurrency = formatEGP;
-
-/**
- * Truncate a string to a max length.
- */
-export const truncate = (str, max = 80) =>
-  str && str.length > max ? str.slice(0, max) + '…' : str;
 
 /**
  * Generate a random NFC code in the format NFC-XXXX-XXXX

@@ -22,14 +22,7 @@ const languageSlice = createSlice({
         document.documentElement.lang = state.language;
       }
     },
-    setLanguage: (state, action) => {
-      state.language = action.payload;
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('language', state.language);
-        document.documentElement.dir = state.language === 'ar' ? 'rtl' : 'ltr';
-        document.documentElement.lang = state.language;
-      }
-    },
+
     initializeLanguage: (state) => {
       if (typeof window !== 'undefined') {
         document.documentElement.dir = state.language === 'ar' ? 'rtl' : 'ltr';
@@ -39,5 +32,5 @@ const languageSlice = createSlice({
   },
 });
 
-export const { toggleLanguage, setLanguage, initializeLanguage } = languageSlice.actions;
+export const { toggleLanguage, initializeLanguage } = languageSlice.actions;
 export const language = languageSlice.reducer;

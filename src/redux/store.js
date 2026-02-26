@@ -4,7 +4,7 @@ import { profile }  from './slices/profileSlice';
 import { theme }    from './slices/themeSlice';
 import { user }     from './slices/userSlice';
 import { language } from './slices/languageSlice';
-import { flags }    from './slices/flagsSlice';
+
 import { audio }    from './slices/audioSlice';
 import { cart }     from './slices/cartSlice';
 
@@ -15,7 +15,7 @@ export const store = configureStore({
     theme,
     user,
     language,
-    flags,
+
     audio,
     cart,
   },

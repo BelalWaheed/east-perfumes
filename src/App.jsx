@@ -6,7 +6,6 @@ import { initializeLanguage } from '@/redux/slices/languageSlice';
 import { fetchProducts } from '@/redux/slices/productSlice';
 import { fetchUsers } from '@/redux/slices/userSlice';
 import { restoreSession } from '@/redux/slices/profileSlice';
-import { setPlaylist } from '@/redux/slices/audioSlice';
 
 import UserLayout from '@/layouts/UserLayout';
 import AdminLayout from '@/layouts/AdminLayout';
@@ -38,8 +37,8 @@ export default function App() {
           dispatch(fetchUsers()),
           dispatch(restoreSession()),
         ]);
-      } catch (err) {
-        console.error('Error fetching initial data:', err);
+      } catch {
+        // silently handle boot errors
       } finally {
         setInitialLoading(false);
       }

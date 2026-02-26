@@ -373,7 +373,11 @@
     "skipForNow": "Skip for now",
     "viewProfile": "View My Profile",
     "noOrder": "No Order Found",
-    "noOrderDesc": "It seems you arrived here without placing an order. Please go back and try again."
+    "noOrderDesc": "It seems you arrived here without placing an order. Please go back and try again.",
+    "scanTag": "Scan the tag",
+    "scanTagDesc": "Use your phone to scan the NFC tag or QR code on the packaging.",
+    "exclusiveAccess": "Exclusive Access",
+    "exclusiveAccessDesc": "Verification is only available via the physical security tag on your East Perfumes bottle."
   },
   "productData": {
     "amber-night": {
