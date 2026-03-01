@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
+import { HiPlus, HiTrash } from 'react-icons/hi';
 import { updateProduct } from '@/redux/slices/productSlice';
 import { useTranslation } from '@/hooks/useTranslation';
 import Loader from '@/components/Loader';
@@ -27,8 +28,10 @@ export default function EditProduct() {
     category: '',
     gender: '',
     image: '',
-    nfcCode: '',
   });
+
+  const [nfcCodes, setNfcCodes] = useState([]);
+  const [newNfcCode, setNewNfcCode] = useState('');
 
   useEffect(() => {
     if (product) {
@@ -40,13 +43,26 @@ export default function EditProduct() {
         category: product.category || '',
         gender: product.gender || '',
         image: product.image || '',
-        nfcCode: product.nfcCode || '',
-        audioURL: product.audioURL || '',
       });
+      setNfcCodes(product.nfcCode || []);
     }
   }, [product]);
 
   const handleChange = (e) => setForm((p) => ({ ...p, [e.target.name]: e.target.value }));
+
+  const handleAddNfc = () => {
+    const code = newNfcCode.trim().toUpperCase();
+    if (!code) return;
+    if (nfcCodes.some((e) => e.code === code)) {
+      return Swal.fire({ icon: 'warning', text: t('admin.nfcDuplicate') });
+    }
+    setNfcCodes([...nfcCodes, { code, used: '0' }]);
+    setNewNfcCode('');
+  };
+
+  const handleRemoveNfc = (index) => {
+    setNfcCodes(nfcCodes.filter((_, i) => i !== index));
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -59,6 +75,7 @@ export default function EditProduct() {
         ...form,
         price: Number(form.price),
         discount: Number(form.discount) || 0,
+        nfcCode: nfcCodes,
       };
       await dispatch(updateProduct({ id: product.id, data })).unwrap();
       Swal.fire({ icon: 'success', text: t('admin.productUpdated'), timer: 1500, showConfirmButton: false });
@@ -136,10 +153,51 @@ export default function EditProduct() {
           )}
         </div>
 
+        {/* NFC Codes Manager */}
         <div>
           <label className="text-sm font-medium text-foreground mb-2 block">{t('admin.nfcCode')}</label>
-          <input name="nfcCode" value={form.nfcCode} onChange={handleChange}
-            className="w-full px-4 py-3 rounded-xl bg-secondary border border-border text-foreground focus:ring-2 focus:ring-primary/50 focus:outline-none font-mono" />
+          <div className="flex gap-3 mb-3">
+            <input
+              value={newNfcCode}
+              onChange={(e) => setNewNfcCode(e.target.value)}
+              placeholder="NFC-XXXX-XXXX"
+              className="flex-1 px-4 py-3 rounded-xl bg-secondary border border-border text-foreground focus:ring-2 focus:ring-primary/50 focus:outline-none font-mono"
+              onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddNfc())}
+            />
+            <button
+              type="button"
+              onClick={handleAddNfc}
+              className="btn-premium px-4 py-3 text-white flex items-center gap-2"
+            >
+              <HiPlus className="text-lg" />
+              {t('common.add')}
+            </button>
+          </div>
+          {nfcCodes.length > 0 && (
+            <div className="space-y-2">
+              {nfcCodes.map((entry, i) => (
+                <div key={i} className="flex items-center justify-between p-3 rounded-xl bg-secondary/50 border border-border">
+                  <code className="text-sm font-mono text-foreground">{entry.code}</code>
+                  <div className="flex items-center gap-2">
+                    <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${
+                      entry.used === '1'
+                        ? 'bg-orange-500/10 text-orange-500'
+                        : 'bg-green-500/10 text-green-500'
+                    }`}>
+                      {entry.used === '1' ? t('admin.used') : t('admin.notUsed')}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveNfc(i)}
+                      className="p-1.5 rounded-lg hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-all"
+                    >
+                      <HiTrash className="text-lg" />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         <div className="flex gap-4 pt-4">

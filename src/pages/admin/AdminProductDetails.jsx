@@ -87,10 +87,26 @@ export default function AdminProductDetails() {
               )}
             </div>
 
-            {product.nfcCode && (
-              <div className="flex items-center gap-2 text-sm text-green-500 pt-4 border-t border-border">
-                <HiShieldCheck className="text-lg" />
-                NFC: <code className="px-2 py-0.5 bg-secondary rounded font-mono text-foreground">{product.nfcCode}</code>
+            {product.nfcCode?.length > 0 && (
+              <div className="pt-4 border-t border-border">
+                <div className="flex items-center gap-2 text-sm text-green-500 mb-3">
+                  <HiShieldCheck className="text-lg" />
+                  NFC Codes ({product.nfcCode.length})
+                </div>
+                <div className="space-y-2">
+                  {product.nfcCode.map((entry, i) => (
+                    <div key={i} className="flex items-center justify-between p-2 rounded-lg bg-secondary/50">
+                      <code className="text-xs font-mono text-foreground">{entry.code}</code>
+                      <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${
+                        entry.used === '1'
+                          ? 'bg-orange-500/10 text-orange-500'
+                          : 'bg-green-500/10 text-green-500'
+                      }`}>
+                        {entry.used === '1' ? t('admin.used') : t('admin.notUsed')}
+                      </span>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
 

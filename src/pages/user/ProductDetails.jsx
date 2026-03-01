@@ -159,7 +159,7 @@ export default function ProductDetails() {
               />
 
               {/* NFC Badge */}
-              {product.nfcCode && (
+              {product.nfcCode?.length > 0 && (
                 <span className="absolute bottom-4 inset-s-4 flex items-center gap-2 px-4 py-2 rounded-full bg-green-500/90 text-white text-sm font-medium backdrop-blur-sm">
                   <HiShieldCheck className="text-lg" />
                   {t('common.authentic')}
@@ -286,7 +286,7 @@ export default function ProductDetails() {
             </div>  
 
             {/* Authentic Status */}
-            {product.nfcCode && (
+            {product.nfcCode?.length > 0 && (
               <div className="flex items-center gap-2 text-sm text-green-500 font-medium mt-4">
                 <HiShieldCheck className="text-xl" />
                 {t('common.authentic')}

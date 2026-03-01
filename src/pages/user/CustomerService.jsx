@@ -1,9 +1,9 @@
-import { useState } from 'react';
-import { HiChevronDown, HiChevronRight, HiChevronUp } from 'react-icons/hi';
+import { useState, useEffect } from 'react';
+import { HiChevronDown, HiChevronUp } from 'react-icons/hi';
 import { FaTruck, FaUndo, FaQuestionCircle, FaFileContract, FaShieldAlt } from 'react-icons/fa';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useSEO } from '@/hooks/useSEO';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 
 function Accordion({ question, answer, open, onClick }) {
   return (
@@ -26,12 +26,29 @@ function Accordion({ question, answer, open, onClick }) {
 
 export default function CustomerService() {
   const { t } = useTranslation();
+  const location = useLocation();
 
   useSEO({
     title: t('customerService.title'),
     description: t('customerService.subtitle'),
   });
   const [openFaq, setOpenFaq] = useState(null);
+
+  // Scroll to hash section when navigating from footer or other links
+  useEffect(() => {
+    if (location.hash) {
+      const id = location.hash.replace('#', '');
+      // Small delay to ensure the DOM is rendered
+      setTimeout(() => {
+        const el = document.getElementById(id);
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 100);
+    } else {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, [location.hash]);
 
   const faqs = [
     { q: t('customerService.faq1Q'), a: t('customerService.faq1A') },

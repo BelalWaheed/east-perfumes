@@ -359,7 +359,13 @@
     "audioRemoved": "تم حذف المقطع الصوتي.",
     "audioRemoveConfirm": "سيتم حذف هذا المقطع الصوتي.",
     "audioDuplicate": "هذا الرابط الصوتي موجود بالفعل.",
-    "selectGenderPlaceholder": "اختر الجنس"
+    "selectGenderPlaceholder": "اختر الجنس",
+    "used": "مستخدم",
+    "notUsed": "غير مستخدم",
+    "nfcDuplicate": "كود NFC هذا موجود بالفعل.",
+    "selectProduct": "اختر المنتج",
+    "selectProductPlaceholder": "اختر منتجًا...",
+    "tracks": "مقاطع"
   },
   "verify": {
     "title": "تأكيد طلبك",
@@ -377,6 +383,7 @@
     "failed": "فشل التحقق",
     "failedDesc": "كود NFC غير صحيح. يرجى التأكد من الكود والمحاولة مرة أخرى.",
     "alreadyUsed": "تم استخدام كود NFC هذا بالفعل ولا يمكن استبداله مرة أخرى.",
+    "alreadyUsedDesc": "لا يزال بإمكانك تصفح المنتج والاستماع إلى الصوت.",
     "tryAgain": "حاول مرة أخرى",
     "skipForNow": "تخطي الآن",
     "viewProfile": "مشاهدة ملفي الشخصي",

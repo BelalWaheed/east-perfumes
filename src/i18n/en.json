@@ -362,7 +362,13 @@
     "audioRemoved": "Audio track removed.",
     "audioRemoveConfirm": "This audio track will be removed.",
     "audioDuplicate": "This audio URL already exists.",
-    "selectGenderPlaceholder": "Select gender"
+    "selectGenderPlaceholder": "Select gender",
+    "used": "Used",
+    "notUsed": "Not Used",
+    "nfcDuplicate": "This NFC code already exists.",
+    "selectProduct": "Select Product",
+    "selectProductPlaceholder": "Choose a product...",
+    "tracks": "tracks"
   },
   "verify": {
     "title": "Verify Your Purchase",
@@ -380,6 +386,7 @@
     "failed": "Verification Failed",
     "failedDesc": "The NFC code doesn't match. Please check the code and try again.",
     "alreadyUsed": "This NFC code has already been used and cannot be redeemed again.",
+    "alreadyUsedDesc": "You can still browse the product and listen to audio.",
     "tryAgain": "Try Again",
     "skipForNow": "Skip for now",
     "viewProfile": "View My Profile",

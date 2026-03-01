@@ -147,12 +147,7 @@ export default function UserProfile() {
                 />
               </div>
             )}
-            <div>
-              <label className="text-sm text-muted-foreground mb-1 block">{t('profile.gender')}</label>
-              <p className="text-foreground font-medium capitalize">
-                {loggedUser.gender ? t(`auth.${loggedUser.gender}`, loggedUser.gender) : '—'}
-              </p>
-            </div>
+
           </div>
         </div>
 

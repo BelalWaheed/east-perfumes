@@ -28,6 +28,13 @@ export default function App() {
     dispatch(initializeLanguage());
   }, [dispatch]);
 
+  // Scroll to top on every route change
+  useEffect(() => {
+    if (!location.hash) {
+      window.scrollTo(0, 0);
+    }
+  }, [location.pathname]);
+
   // Fetch initial data
   useEffect(() => {
     async function boot() {

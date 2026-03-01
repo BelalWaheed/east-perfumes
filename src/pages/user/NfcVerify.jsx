@@ -4,11 +4,9 @@ import { useSelector, useDispatch } from 'react-redux';
 import { HiShieldCheck, HiExclamationCircle, HiGift } from 'react-icons/hi';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useSEO } from '@/hooks/useSEO';
-import { generateNfcCode } from '@/lib/utils';
 import { purchaseProduct } from '@/redux/slices/profileSlice';
 import { updateProduct } from '@/redux/slices/productSlice';
-import { setPlaylist, setIsPlaying } from '@/redux/slices/audioSlice';
-import { userApi } from '@/lib/api';
+import { setPlaylist } from '@/redux/slices/audioSlice';
 import AudioPlayer from '@/components/AudioPlayer';
 
 export default function NfcVerify() {
@@ -41,48 +39,55 @@ export default function NfcVerify() {
 
   const verify = (c) => {
     setLoading(true);
-    // Simulate a small delay for UX
     setTimeout(() => {
-      const found = products.find((p) => p.nfcCode === c);
-      if (found) {
-        setResult({ authentic: true, product: found });
-        // Award points if logged in
-        if (logged && loggedUser) {
-          dispatch(
-            purchaseProduct({
-              user: loggedUser,
-              product: found,
-              finalPrice: found.price,
-              pointsUsed: 0,
-              fixedPoints: 50,
-            })
+      // Search all products for one whose nfcCode array contains a matching code
+      let found = null;
+      let matchedEntry = null;
+      for (const p of products) {
+        const codes = p.nfcCode || [];
+        const entry = codes.find((e) => e.code === c);
+        if (entry) {
+          found = p;
+          matchedEntry = entry;
+          break;
+        }
+      }
+
+      if (found && matchedEntry) {
+        const isAlreadyUsed = matchedEntry.used === '1';
+        setResult({ authentic: true, product: found, alreadyUsed: isAlreadyUsed });
+
+        // Only award points if code is NOT already used
+        if (!isAlreadyUsed) {
+          if (logged && loggedUser) {
+            dispatch(
+              purchaseProduct({
+                user: loggedUser,
+                product: found,
+                finalPrice: found.price,
+                pointsUsed: 0,
+                fixedPoints: 50,
+              })
+            );
+          } else {
+            localStorage.setItem('ep-pendingVerification', JSON.stringify({
+              productId: found.id,
+              points: 50,
+            }));
+          }
+
+          // Mark the NFC code as used
+          const updatedCodes = (found.nfcCode || []).map((e) =>
+            e.code === c ? { ...e, used: '1' } : e
           );
-        } else {
-          // Guest: save pending verification to localStorage
-          localStorage.setItem('ep-pendingVerification', JSON.stringify({
-            productId: found.id,
-            points: 50,
-          }));
+          dispatch(updateProduct({ id: found.id, data: { nfcCode: updatedCodes } }));
         }
 
-        // Rotate NFC to a new random one (always, to prevent reuse)
-        const newNfc = generateNfcCode();
-        dispatch(updateProduct({ id: found.id, data: { ...found, nfcCode: newNfc } }));
-
-        // Play admin's audio playlist, fallback to product audioURL or default
-        userApi.getAll().then((users) => {
-          const admin = users.find((u) => u.role === 'admin');
-          const adminAudio = admin?.audioURL || [];
-          if (adminAudio.length > 0) {
-            dispatch(setPlaylist(adminAudio));
-          } else {
-            const track = found.audioURL || 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3';
-            dispatch(setPlaylist(track));
-          }
-        }).catch(() => {
-          const track = found.audioURL || 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3';
-          dispatch(setPlaylist(track));
-        });
+        // Play product's audio playlist
+        const productAudio = found.audioURL || [];
+        if (productAudio.length > 0) {
+          dispatch(setPlaylist(productAudio));
+        }
       } else {
         setResult({ authentic: false });
       }
@@ -147,7 +152,12 @@ export default function NfcVerify() {
 
               {/* Points Redemption Info */}
               <div className="mb-6 animate-in zoom-in-95 duration-500">
-                {logged ? (
+                {result.alreadyUsed ? (
+                  <div className="p-4 rounded-xl bg-secondary/50 border border-border text-center">
+                    <p className="text-sm font-bold text-foreground mb-1">{t('verify.alreadyUsed')}</p>
+                    <p className="text-xs text-muted-foreground">{t('verify.alreadyUsedDesc')}</p>
+                  </div>
+                ) : logged ? (
                   <div className="p-4 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center gap-3">
                     <HiGift className="text-2xl text-primary" />
                     <div>

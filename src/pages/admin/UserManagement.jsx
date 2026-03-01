@@ -50,7 +50,7 @@ export default function UserManagement() {
                 <th className="text-start px-6 py-4 text-sm font-semibold text-foreground">{t('admin.name')}</th>
                 <th className="text-start px-6 py-4 text-sm font-semibold text-foreground">{t('auth.email')}</th>
                 <th className="text-start px-6 py-4 text-sm font-semibold text-foreground">{t('admin.role')}</th>
-                <th className="text-start px-6 py-4 text-sm font-semibold text-foreground">{t('admin.gender')}</th>
+
                 <th className="text-start px-6 py-4 text-sm font-semibold text-foreground">{t('common.points')}</th>
                 <th className="text-center px-6 py-4 text-sm font-semibold text-foreground">{t('admin.actions')}</th>
               </tr>
@@ -69,7 +69,7 @@ export default function UserManagement() {
                       {user.role || 'user'}
                     </span>
                   </td>
-                  <td className="px-6 py-4 text-sm text-muted-foreground capitalize">{user.gender || '—'}</td>
+
                   <td className="px-6 py-4 text-sm font-semibold text-primary">{user.availablePoints || 0}</td>
                   <td className="px-6 py-4">
                     <div className="flex items-center justify-center gap-2">

@@ -54,12 +54,3 @@ export const formatCurrency = (amount) =>
   `${Number(amount).toFixed(2)} EGP`;
 
 
-/**
- * Generate a random NFC code in the format NFC-XXXX-XXXX
- */
-export const generateNfcCode = () => {
-  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // No O, 0, I, 1 for readability
-  const part1 = Array.from({ length: 4 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
-  const part2 = Array.from({ length: 4 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
-  return `NFC-${part1}-${part2}`;
-};

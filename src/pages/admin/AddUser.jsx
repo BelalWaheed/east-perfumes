@@ -15,7 +15,6 @@ export default function AddUser() {
     name: '',
     email: '',
     password: '',
-    gender: '',
     role: 'user',
   });
 
@@ -65,15 +64,6 @@ export default function AddUser() {
         </div>
 
         <div className="grid md:grid-cols-2 gap-6">
-          <div>
-            <label className="text-sm font-medium text-foreground mb-2 block">{t('admin.gender')}</label>
-            <select name="gender" value={form.gender} onChange={handleChange}
-              className="w-full px-4 py-3 rounded-xl bg-secondary border border-border text-foreground focus:ring-2 focus:ring-primary/50 focus:outline-none">
-              <option value="">—</option>
-              <option value="male">{t('auth.male')}</option>
-              <option value="female">{t('auth.female')}</option>
-            </select>
-          </div>
           <div>
             <label className="text-sm font-medium text-foreground mb-2 block">{t('admin.role')}</label>
             <select name="role" value={form.role} onChange={handleChange}

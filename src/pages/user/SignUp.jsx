@@ -13,13 +13,12 @@ export default function SignUp() {
   const { allUsers } = useSelector((s) => s.user);
   const { t } = useTranslation();
 
-  useSEO({ title: t('common.signUp') });
+  useSEO({ title: t("common.signUp") });
 
   const [form, setForm] = useState({
     name: "",
     email: "",
     password: "",
-    gender: "",
   });
 
   const handleChange = (e) =>
@@ -34,8 +33,7 @@ export default function SignUp() {
       return Swal.fire({ icon: "error", text: t("auth.emailRequired") });
     if (!/\S+@\S+\.\S+/.test(form.email))
       return Swal.fire({ icon: "error", text: t("auth.invalidEmailFormat") });
-    if (!form.gender)
-      return Swal.fire({ icon: "error", text: t("auth.selectGender") });
+
     if (form.password.length < 6)
       return Swal.fire({ icon: "error", text: t("auth.passwordMinLength") });
 
@@ -50,20 +48,21 @@ export default function SignUp() {
       // Check for pending guest NFC verification
       let pendingPoints = 0;
       let pendingProductId = null;
-      const pending = localStorage.getItem('ep-pendingVerification');
+      const pending = localStorage.getItem("ep-pendingVerification");
       if (pending) {
         try {
           const parsed = JSON.parse(pending);
           pendingPoints = parsed.points || 0;
           pendingProductId = parsed.productId;
-        } catch { /* ignore */ }
+        } catch {
+          /* ignore */
+        }
       }
 
       const newUser = {
         name: form.name,
         email: form.email,
         password: form.password,
-        gender: form.gender,
         role: "user",
         totalPoints: pendingPoints,
         usedPoints: 0,
@@ -73,7 +72,7 @@ export default function SignUp() {
 
       const result = await dispatch(addNewUser(newUser)).unwrap();
       localStorage.setItem("ep-userId", result.id);
-      if (pending) localStorage.removeItem('ep-pendingVerification');
+      if (pending) localStorage.removeItem("ep-pendingVerification");
       dispatch(setLoggedUser(result));
       dispatch(setLogged(true));
       navigate("/");
@@ -119,22 +118,6 @@ export default function SignUp() {
                 placeholder={t("auth.yourEmail")}
                 className="w-full px-4 py-3 rounded-xl bg-secondary border border-border text-foreground placeholder:text-muted-foreground focus:ring-2 focus:ring-primary/50 focus:outline-none"
               />
-            </div>
-
-            <div>
-              <label className="text-sm font-medium text-foreground mb-2 block">
-                {t("auth.yourGender")}
-              </label>
-              <select
-                name="gender"
-                value={form.gender}
-                onChange={handleChange}
-                className="w-full px-4 py-3 rounded-xl bg-secondary border border-border text-foreground focus:ring-2 focus:ring-primary/50 focus:outline-none"
-              >
-                <option value="">{t("auth.selectGenderPlaceholder")}</option>
-                <option value="male">{t("auth.male")}</option>
-                <option value="female">{t("auth.female")}</option>
-              </select>
             </div>
 
             <div>

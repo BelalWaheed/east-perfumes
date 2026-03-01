@@ -84,7 +84,9 @@ export default function AdminProducts() {
                     {product.discount > 0 ? `${product.discount}%` : '—'}
                   </td>
                   <td className="px-6 py-4 text-sm font-mono text-muted-foreground">
-                    {product.nfcCode || '—'}
+                    {(product.nfcCode?.length > 0)
+                      ? `${product.nfcCode.length} codes (${product.nfcCode.filter(e => e.used === '1').length} used)`
+                      : '—'}
                   </td>
                   <td className="px-6 py-4">
                     <div className="flex items-center justify-center gap-2">
