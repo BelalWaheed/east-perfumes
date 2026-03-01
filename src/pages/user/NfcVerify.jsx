@@ -75,11 +75,12 @@ export default function NfcVerify() {
       }
 
       if (found && matchedEntry) {
+        const isAdmin = logged && loggedUser?.role === 'admin';
         const isAlreadyUsed = matchedEntry.used === '1';
-        setResult({ authentic: true, product: found, alreadyUsed: isAlreadyUsed });
+        setResult({ authentic: true, product: found, alreadyUsed: isAdmin ? false : isAlreadyUsed });
 
-        // Only award points if code is NOT already used
-        if (!isAlreadyUsed) {
+        // Skip points & code marking for admins
+        if (!isAdmin && !isAlreadyUsed) {
           if (logged && loggedUser) {
             dispatch(
               purchaseProduct({

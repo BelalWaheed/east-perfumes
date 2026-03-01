@@ -23,6 +23,9 @@ export const purchaseProduct = createAsyncThunk(
   'profile/purchase',
   async ({ user, product, finalPrice, pointsUsed = 0, fixedPoints = 50 }, { rejectWithValue }) => {
     try {
+      // Admins never earn points or get purchasedProducts
+      if (user.role === 'admin') return user;
+
       const pointsEarned = fixedPoints;
 
       const updated = {
