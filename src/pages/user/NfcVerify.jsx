@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
-import { HiShieldCheck, HiExclamationCircle, HiGift } from 'react-icons/hi';
+import { HiShieldCheck, HiExclamationCircle, HiGift, HiCamera } from 'react-icons/hi';
+import QrScanner from '@/components/QrScanner';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useSEO } from '@/hooks/useSEO';
 import { purchaseProduct } from '@/redux/slices/profileSlice';
 import { updateProduct } from '@/redux/slices/productSlice';
-import { setPlaylist } from '@/redux/slices/audioSlice';
+import { setPlaylist, setIsPlaying } from '@/redux/slices/audioSlice';
 import AudioPlayer from '@/components/AudioPlayer';
 
 export default function NfcVerify() {
@@ -23,6 +24,26 @@ export default function NfcVerify() {
   const [code, setCode] = useState(paramCode || '');
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [showScanner, setShowScanner] = useState(false);
+
+  const handleScan = (decodedText) => {
+    setShowScanner(false);
+    // Extract NFC code from URL or use raw text
+    let nfc = decodedText;
+    try {
+      const url = new URL(decodedText);
+      const parts = url.pathname.split('/').filter(Boolean);
+      // Expect URL like /verify/CODE
+      const verifyIdx = parts.indexOf('verify');
+      if (verifyIdx !== -1 && parts[verifyIdx + 1]) {
+        nfc = decodeURIComponent(parts[verifyIdx + 1]);
+      }
+    } catch {
+      // Not a URL — use the raw decoded text as the code
+    }
+    setCode(nfc);
+    verify(nfc);
+  };
 
   // Stop audio and clear playlist when leaving this page
   useEffect(() => {
@@ -124,11 +145,18 @@ export default function NfcVerify() {
               <li>{t('verify.step3')}</li>
             </ol>
           </div>
-          
+
+          {/* Scan QR Code Button */}
           <div className="mt-8 pt-6 border-t border-border">
-            <p className="text-xs text-muted-foreground uppercase tracking-widest font-bold mb-2">{t('verify.exclusiveAccess')}</p>
-            <p className="text-sm text-foreground/70">
-              {t('verify.exclusiveAccessDesc')}
+            <button
+              onClick={() => setShowScanner(true)}
+              className="w-full flex items-center justify-center gap-3 py-4 px-6 rounded-xl gradient-primary text-white font-bold text-base shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
+            >
+              <HiCamera className="text-2xl" />
+              {t('verify.scanQr')}
+            </button>
+            <p className="text-xs text-muted-foreground mt-3 text-center">
+              {t('verify.scanQrDesc')}
             </p>
           </div>
         </div>
@@ -203,6 +231,14 @@ export default function NfcVerify() {
         </div>
       )}
       {result?.authentic && <AudioPlayer />}
+
+      {/* QR Scanner Modal */}
+      {showScanner && (
+        <QrScanner
+          onScan={handleScan}
+          onClose={() => setShowScanner(false)}
+        />
+      )}
     </div>
   );
 }

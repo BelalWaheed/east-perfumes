@@ -392,7 +392,11 @@
     "scanTag": "امسح العلامة",
     "scanTagDesc": "استخدم هاتفك لمسح علامة NFC أو رمز QR الموجود على العبوة.",
     "exclusiveAccess": "وصول حصري",
-    "exclusiveAccessDesc": "التحقق متاح فقط عبر علامة الأمان المادية على زجاجة TIVAQ Fragrance الخاصة بك."
+    "exclusiveAccessDesc": "التحقق متاح فقط عبر علامة الأمان المادية على زجاجة TIVAQ Fragrance الخاصة بك.",
+    "scanQr": "مسح رمز QR",
+    "scanQrDesc": "افتح الكاميرا لمسح رمز QR الموجود على عبوة المنتج.",
+    "cameraPermissionDenied": "تم رفض الوصول إلى الكاميرا. يرجى السماح بالوصول إلى الكاميرا في إعدادات المتصفح.",
+    "scanning": "وجّه الكاميرا نحو رمز QR..."
   },
   "productData": {
     "amber-night": {

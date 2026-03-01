@@ -395,7 +395,11 @@
     "scanTag": "Scan the tag",
     "scanTagDesc": "Use your phone to scan the NFC tag or QR code on the packaging.",
     "exclusiveAccess": "Exclusive Access",
-    "exclusiveAccessDesc": "Verification is only available via the physical security tag on your TIVAQ Fragrance bottle."
+    "exclusiveAccessDesc": "Verification is only available via the physical security tag on your TIVAQ Fragrance bottle.",
+    "scanQr": "Scan QR Code",
+    "scanQrDesc": "Open your camera to scan the QR code on the product packaging.",
+    "cameraPermissionDenied": "Camera access denied. Please allow camera access in your browser settings.",
+    "scanning": "Point your camera at the QR code..."
   },
   "productData": {
     "amber-night": {
