@@ -13,4 +13,18 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  build: {
+  chunkSizeWarningLimit: 800, // optional (just reduces warning noise)
+  rollupOptions: {
+    output: {
+      manualChunks: {
+        redux: ["@reduxjs/toolkit", "react-redux"],
+        router: ["react-router-dom"],
+        qr: ["html5-qrcode"],
+        alerts: ["sweetalert2"],
+        icons: ["react-icons", "lucide-react"]
+      }
+    }
+  }
+}
 });
