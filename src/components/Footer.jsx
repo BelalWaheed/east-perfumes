@@ -50,6 +50,7 @@ export default function Footer() {
               <ul className="space-y-3">
                 {[
                   { to: '/', label: t('common.home') },
+                  { to: '/about-us', label: t('footer.aboutUs') },
                   { to: '/products', label: t('common.shop') },
                   { to: '/profile', label: t('common.profile') },
                 ].map((link, i) => (

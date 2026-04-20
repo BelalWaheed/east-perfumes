@@ -11,6 +11,7 @@ import Login from '@/pages/user/Login';
 import SignUp from '@/pages/user/SignUp';
 import UserProfile from '@/pages/user/UserProfile';
 import CustomerService from '@/pages/user/CustomerService';
+import AboutUs from '@/pages/user/AboutUs';
 import NfcVerify from '@/pages/user/NfcVerify';
 import NotFound from '@/pages/user/NotFound';
 
@@ -29,6 +30,7 @@ export default function UserLayout() {
           <Route path="sign-up" element={<SignUp />} />
           <Route path="profile" element={<UserProfile />} />
           <Route path="customer-service" element={<CustomerService />} />
+          <Route path="about-us" element={<AboutUs />} />
           <Route path="verify" element={<NfcVerify />} />
           <Route path="verify/:nfcCode" element={<NfcVerify />} />
           <Route path="*" element={<NotFound />} />

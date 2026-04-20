@@ -238,9 +238,21 @@
     "invalidDesc": "No product found with this code. Please check and try again.",
     "alreadyVerified": "This product was previously verified and its code is now inactive."
   },
+  "aboutUs": {
+    "title": "Our Legacy",
+    "subtitle": "A journey of scents, crossing boundaries and eras.",
+    "storyTitle": "The TIVAQ Story",
+    "storyText": "Born in the heart of Cairo, TIVAQ Fragrance began as a small vision: to capture the essence of the ancient world and refine it for the modern connoisseur. Our history is woven with the threads of the silk road, where rare spices and precious resins once traveled.",
+    "missionTitle": "Our Craft",
+    "missionText": "Every TIVAQ creation is a symphony of rare botanicals and traditional techniques. We believe that a perfume is not just a scent, but a story that unfolds on the skin, bridging the gap between historical elegance and contemporary luxury.",
+    "founderTitle": "The Vision",
+    "founderText": "Founded by master artisans who sought to preserve the soul of oriental perfumery while embracing western innovation. TIVAQ remains a family-owned house dedicated to the art of fine fragrance."
+  },
   "customerService": {
     "title": "Customer Service",
     "subtitle": "We're here to help. Find answers to common questions.",
+    "taxRegistration": "Follow tax registration number",
+    "taxNumber": "108900700058614",
     "needHelp": "Need Help?",
     "helpDesc": "Check our FAQ, shipping info, and policies.",
     "verifyTitle": "Verify Product",

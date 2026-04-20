@@ -8,7 +8,8 @@ import {
   HiShoppingBag, 
   HiOutlineSupport,
   HiChevronRight,
-  HiShieldCheck
+  HiShieldCheck,
+  HiInformationCircle
 } from 'react-icons/hi';
 import { MdOutlineLightMode } from 'react-icons/md';
 import { CiDark } from 'react-icons/ci';
@@ -110,6 +111,13 @@ export default function Navbar() {
             >
               <HiShoppingBag className="text-lg" />
               {t('common.shop')}
+            </button>
+            <button
+              onClick={() => handleNavigate('/about-us')}
+              className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-200 flex items-center gap-2 ${activeClass('/about-us')}`}
+            >
+              <HiInformationCircle className="text-lg" />
+              {t('footer.aboutUs')}
             </button>
             <button
               onClick={() => handleNavigate('/customer-service')}
@@ -227,6 +235,16 @@ export default function Navbar() {
                 <div className="flex items-center gap-3">
                   <HiShoppingBag className="text-xl" />
                   {t('common.shop')}
+                </div>
+                <HiChevronRight className="text-lg opacity-50" />
+              </button>
+              <button
+                onClick={() => handleNavigate('/about-us')}
+                className={`flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-200 font-medium ${activeClass('/about-us')}`}
+              >
+                <div className="flex items-center gap-3">
+                  <HiInformationCircle className="text-xl" />
+                  {t('footer.aboutUs')}
                 </div>
                 <HiChevronRight className="text-lg opacity-50" />
               </button>
